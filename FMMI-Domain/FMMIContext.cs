@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FMMI_Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace FMMI_Domain
 {
-    public class FMMIContext
+    public class FMMIContext : DbContext
     {
+        public DbSet<Device> Devices { get; set; }
+        public DbSet<DeviceType> DeviceTypes { get; set; }
+        public DbSet<TelemetriData> Telemetri { get; set; }
+        public DbSet<Alarm> Alarms { get; set; }
+        public DbSet<Location> locations { get; set; }
+
+
+        public FMMIContext(DbContextOptions<FMMIContext> options) : base(options) { }
+
+
+
     }
 }
