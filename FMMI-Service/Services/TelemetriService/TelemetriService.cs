@@ -32,5 +32,10 @@ namespace FMMI_Service.Services.TelemetriService
         {
             return await _context.Telemetri.Where(t => t.Date >= startDate && t.Date <= endDate).OrderByDescending(t => t.Date).ToListAsync();
         }
+
+        public async Task InsertTelemetriData(TelemetriData data)
+        {
+            await _context.Telemetri.AddAsync(data);
+        }
     }
 }
