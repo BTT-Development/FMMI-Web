@@ -1,74 +1,125 @@
 ﻿using FMMI_Domain.Entities;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using MQTTnet;
+using MQTTnet.Client;
 using MQTTnet.Extensions.TopicTemplate;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 
 namespace FMMI_Service.Services.APIService.BackgroundWorker
 {
     public class MQTTBackgroundService : BackgroundService
     {
-
         private readonly IMongoDatabase _dbConnection;
-        static readonly MqttTopicTemplate sampleTemplate = new("home/temp");
-
         private readonly IMongoCollection<TelemetriData> _telemetryCollection;
+        private readonly IMqttClient _mqttClient;
+
+        private static readonly MqttTopicTemplate sampleTemplate = new("measurement/DHT11-1/temperature");
+
+        private readonly MqttClientOptions _mqttClientOptions;
 
         public MQTTBackgroundService(IMongoDatabase database)
         {
             _dbConnection = database;
             _telemetryCollection = _dbConnection.GetCollection<TelemetriData>("Telemetri");
+
+            var mqttFactory = new MqttFactory();
+            _mqttClient = mqttFactory.CreateMqttClient();
+
+            _mqttClientOptions = new MqttClientOptionsBuilder()
+                .WithTcpServer("b9bde7b5a8b94b5291f09a34a23e9a92.s1.eu.hivemq.cloud")
+                .WithCredentials("brian_test", "P@ssw0rd")
+                .WithTlsOptions(_ => _.UseTls())
+                //.WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V311)
+                .WithCleanSession()
+                .Build();
+
+            _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceivedAsync;
+
+            _mqttClient.DisconnectedAsync += HandleDisconnectedAsync;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var mqttFactory = new MqttClientFactory();
+            Console.WriteLine("MQTT Background Service is starting.");
 
-            var mqttClient = mqttFactory.CreateMqttClient();
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                if (!_mqttClient.IsConnected)
+                {
+                    try
+                    {
+                        await _mqttClient.ConnectAsync(_mqttClientOptions, CancellationToken.None);
+
+                        if (_mqttClient.IsConnected)
+                        {
+                            await SubscribeToTopicsAsync(stoppingToken);
+                        }
+                    }
+                    catch (OperationCanceledException){break;}
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"MQTT connection failed: {ex.Message}. Retrying in 5 seconds...");
+                        // Vent før genforsøg
+                        await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                    }
+                }
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+            }
+
+            Console.WriteLine("MQTT Background Service is stopping.");
+        }
+
+        private async Task HandleDisconnectedAsync(MqttClientDisconnectedEventArgs e)
+        {
+            if (e.ClientWasConnected)
+            {
+                Console.WriteLine("MQTT Disconnected unexpectedly. Attempting to reconnect...");
+            }
             
-            var mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer("e4246b2a38b04b68b24379fef2627405.s1.eu.hivemq.cloud")
-                .WithTlsOptions(_ => _.UseTls())
-                .WithCredentials("MQTTC#", "Ksk199552658241")
+        }
+
+        private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
+        {
+            try
+            {
+                Console.WriteLine($"Received message on topic: {e.ApplicationMessage.Topic}");
+                TelemetriData? telemetry = JsonSerializer.Deserialize<TelemetriData>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+
+                if (telemetry != null)
+                {
+                    await _telemetryCollection.InsertOneAsync(telemetry);
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Failed to deserialize MQTT message payload");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing MQTT message: {ex.Message}");
+            }
+        }
+
+        private async Task SubscribeToTopicsAsync(CancellationToken stoppingToken)
+        {
+            var mqttFactory = new MqttFactory();
+            var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
+                .WithTopicTemplate(sampleTemplate)
                 .Build();
 
-            mqttClient.ApplicationMessageReceivedAsync += async e =>
+            await _mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);
+        }
+
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            if (_mqttClient.IsConnected)
             {
-                try
-                {
-                    var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                    Console.WriteLine($"Received message on topic '{e.ApplicationMessage.Topic}': {payload}");
-
-                    // Antager at TelemetriData er defineret i FMMI_Domain.Entities
-                    TelemetriData? telemetry = JsonSerializer.Deserialize<TelemetriData>(payload);
-
-                    if (telemetry != null)
-                    {
-                        // Brug den pre-loadede collection til at gemme data
-                        await _telemetryCollection.InsertOneAsync(telemetry, stoppingToken);
-                        Console.WriteLine($"Successfully saved TelemetryData to MongoDB. ID: {telemetry.Id}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Warning: Failed to deserialize MQTT message payload.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error processing MQTT message: {ex.Message}");
-                }
-            };
-
-            await mqttClient.ConnectAsync(mqttClientOptions, stoppingToken);
-
-            var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder().WithTopicTemplate(sampleTemplate).Build();
-            await mqttClient.SubscribeAsync("home/temp", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
-            //await mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);
-
-            await Task.Delay(Timeout.Infinite, stoppingToken);
+                await _mqttClient.DisconnectAsync(new MqttClientDisconnectOptions { Reason = (MqttClientDisconnectOptionsReason)MqttClientDisconnectReason.NormalDisconnection }, stoppingToken);
+            }
+            await base.StopAsync(stoppingToken);
         }
     }
 }

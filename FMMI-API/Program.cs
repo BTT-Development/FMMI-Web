@@ -15,8 +15,6 @@ var configuration = builder.Configuration;
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-builder.Services.AddHostedService<MQTTBackgroundService>();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -41,15 +39,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Register IMongoClient (the correct type for dependency injection)
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    // Hent forbindelsesstrengen fra konfigurationen
+    var connectionString = configuration["MongoDB:ConnectionString"];
+    return new MongoClient(connectionString);
+});
+
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
-    var client = sp.GetRequiredService<MongoClient>();
+    // Få den registrerede IMongoClient
+    var client = sp.GetRequiredService<IMongoClient>();
+
+    // Hent databasenavnet
     var databaseName = configuration["MongoDB:DatabaseName"];
+
     // Returner databasen
     return client.GetDatabase(databaseName);
 });
 
-builder.Services
+builder.Services.AddHostedService<MQTTBackgroundService>()
 .AddMvc();
 
 var app = builder.Build();

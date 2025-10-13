@@ -11,8 +11,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.9" />
     <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
-    <PackageReference Include="MQTTnet" Version="5.0.1.1416" />
-    <PackageReference Include="MQTTnet.Extensions.TopicTemplate" Version="5.0.1.1416" />
+    <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    <PackageReference Include="MQTTnet.Extensions.TopicTemplate" Version="4.3.7.1207" />
   </ItemGroup>
 
   <ItemGroup>
