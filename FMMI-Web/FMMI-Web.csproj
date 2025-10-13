@@ -28,6 +28,11 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Identity.Web" Version="3.14.1" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.14.1" />
+    <PackageReference Include="Syncfusion.Blazor.Calendars" Version="31.1.23" />
+    <PackageReference Include="Syncfusion.Blazor.Charts" Version="31.1.23" />
+    <PackageReference Include="Syncfusion.Blazor.Layouts" Version="31.1.23" />
+    <PackageReference Include="Syncfusion.Blazor.Navigations" Version="31.1.23" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="31.1.23" />
   </ItemGroup>
 
   <ItemGroup>
