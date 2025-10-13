@@ -16,7 +16,10 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         private readonly IMongoCollection<TelemetriData> _telemetryCollection;
         private readonly IMqttClient _mqttClient;
 
-        private static readonly MqttTopicTemplate sampleTemplate = new("measurement/DHT11-1/temperature");
+        private static readonly MqttTopicTemplate _historyDataTemp = new("device/esp32/data/temperature");
+        private static readonly MqttTopicTemplate _historyDataHumidity = new("device/esp32/data/humidity");
+        private static readonly MqttTopicTemplate _realTimeDataTemp = new("device/esp32/realtime/temperature");
+        private static readonly MqttTopicTemplate _realTimeDataHumidity = new("device/esp32/realtime/humidity");
 
         private readonly MqttClientOptions _mqttClientOptions;
 
@@ -29,8 +32,8 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
             _mqttClient = mqttFactory.CreateMqttClient();
 
             _mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer("b9bde7b5a8b94b5291f09a34a23e9a92.s1.eu.hivemq.cloud")
-                .WithCredentials("brian_test", "P@ssw0rd")
+                .WithTcpServer("49987f455bc94d2183a5075a9fa78344.s1.eu.hivemq.cloud")
+                .WithCredentials("Worker", "fMMIWORKER1234")
                 .WithTlsOptions(_ => _.UseTls())
                 //.WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V311)
                 .WithCleanSession()
@@ -106,8 +109,12 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         private async Task SubscribeToTopicsAsync(CancellationToken stoppingToken)
         {
             var mqttFactory = new MqttFactory();
+
             var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-                .WithTopicTemplate(sampleTemplate)
+                .WithTopicFilter(f => f.WithTopic(_historyDataTemp.ToString()).WithAtLeastOnceQoS())
+                .WithTopicFilter(f => f.WithTopic(_historyDataHumidity.ToString()).WithAtLeastOnceQoS())
+                //.WithTopicFilter(f => f.WithTopic(_realTimeDataTemp.ToString()).WithAtLeastOnceQoS())
+                //.WithTopicFilter(f => f.WithTopic(_realTimeDataHumidity.ToString()).WithAtLeastOnceQoS())
                 .Build();
 
             await _mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);

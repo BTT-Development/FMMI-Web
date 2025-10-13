@@ -4,8 +4,8 @@
 <div class="content">
     <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10 })">
         <DashboardLayoutPanels>
-            <DashboardLayoutPanel Id="Panel1" SizeX="4" SizeY="2">
-                <HeaderTemplate><div class='header'> Temperatur og luftfugtighed </div></HeaderTemplate>
+            <DashboardLayoutPanel Id="Panel1" SizeX="3" SizeY="2">
+                <HeaderTemplate><div class='header text-center'> Temperatur </div></HeaderTemplate>
                 <ContentTemplate>
                     <div style="height:100%; width:100%;">
                         <SfChart ID="linechart" @ref="linechartObj">
@@ -18,15 +18,40 @@
                                         </ChartDataLabel>
                                     </ChartMarker>
                                 </ChartSeries>
+                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
+                                    <ChartMarker Visible="true">
+                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
+                                        </ChartDataLabel>
+                                    </ChartMarker>
+                                </ChartSeries>
                             </ChartSeriesCollection>
                         </SfChart>
                     </div>
                 </ContentTemplate>
             </DashboardLayoutPanel>
-            <DashboardLayoutPanel Id="Panel2" SizeX="2" SizeY="2" Column="4">
-                <HeaderTemplate><div class='header'> Product sales in Years </div></HeaderTemplate>
+            <DashboardLayoutPanel Id="Panel2" SizeX="3" SizeY="2">
+                <HeaderTemplate><div class='header text-center'> Luftfugtighed </div></HeaderTemplate>
                 <ContentTemplate>
-                   
+                    <div style="height:100%; width:100%;">
+                        <SfChart ID="linechart" @ref="linechartObj">
+                            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime">
+                            </ChartPrimaryXAxis>
+                            <ChartSeriesCollection>
+                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
+                                    <ChartMarker Visible="true">
+                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
+                                        </ChartDataLabel>
+                                    </ChartMarker>
+                                </ChartSeries>
+                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
+                                    <ChartMarker Visible="true">
+                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
+                                        </ChartDataLabel>
+                                    </ChartMarker>
+                                </ChartSeries>
+                            </ChartSeriesCollection>
+                        </SfChart>
+                    </div>
                 </ContentTemplate>
             </DashboardLayoutPanel>
             <DashboardLayoutPanel Id="Panel3" SizeX="3" SizeY="2" Row=2 Column=3>
@@ -67,8 +92,10 @@
         </DashboardLayoutPanels>
     </SfDashboardLayout>
 </div>
+
 @code
- { SfChart chartObj;
+ { 
+    SfChart chartObj;
     SfChart barchartObj;
     SfChart linechartObj;
     private object[] Value = new object[] { new DateTime(2025, 01, 01), new DateTime(2025, 10, 01) };

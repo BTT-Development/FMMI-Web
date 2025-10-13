@@ -123,3 +123,7 @@
         overflow-y: auto;
     }
 }
+
+.navbarColor{
+    background-color: black !important;
+}
