@@ -30,6 +30,7 @@ builder.Services.AddDbContext<FMMIContext>(options =>
     options.UseNpgsql(connectionString));
 
 
+
 #region Sessions
 
 builder.Services.AddDistributedMemoryCache(); // Required for session storage
@@ -48,13 +49,13 @@ var app = builder.Build();
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JFaF5cXGRCf1JpRGFGfV5ycUVCallQTnJXUiweQnxTdEBiWX5dcHBQRGVUUUR3WEleYg==");
 #endregion
 
-//#region Create database schema if not exists
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<FMMIContext>();
-//    db.Database.Migrate(); // 
-//}
-//#endregion
+#region Create database schema if not exists
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<FMMIContext>();
+    db.Database.Migrate(); // 
+}
+#endregion
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

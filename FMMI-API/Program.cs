@@ -1,4 +1,5 @@
 using FMMI_Domain;
+using FMMI_Service;
 using FMMI_Service.Services.APIService.BackgroundWorker;
 using FMMI_Service.Services.TelemetriService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,27 +40,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Register IMongoClient (the correct type for dependency injection)
+
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
-    // Hent forbindelsesstrengen fra konfigurationen
     var connectionString = configuration["MongoDB:ConnectionString"];
     return new MongoClient(connectionString);
 });
 
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
-    // Få den registrerede IMongoClient
     var client = sp.GetRequiredService<IMongoClient>();
-
-    // Hent databasenavnet
     var databaseName = configuration["MongoDB:DatabaseName"];
-
-    // Returner databasen
     return client.GetDatabase(databaseName);
 });
 
-builder.Services.AddHostedService<MQTTBackgroundService>()
+builder.Services.AddHostedService<MQTTBackgroundService>();
+builder.Services.AddServices()
 .AddMvc();
 
 var app = builder.Build();

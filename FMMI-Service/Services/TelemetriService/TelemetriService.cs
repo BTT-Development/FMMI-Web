@@ -5,37 +5,49 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FMMI_Service.Services.TelemetriService
 {
-    internal class TelemetriService : BaseService<TelemetriData>
+    internal class TelemetriService : ITelemetriService
     {
         private readonly FMMIContext _context;
-        public TelemetriService(FMMIContext context) : base(context)
+        public TelemetriService(FMMIContext context)
         {
-                _context = context;
+             _context = context;
         }
 
-        public async Task<List<TelemetriData>> GetTelemetriDataAsync()
+        #region Temperature methods
+
+        public async Task<List<Temp>> GetTemperatureDataAsync()
         {
-            return await _context.Telemetri.OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.Temperature.OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task<TelemetriData?> GetTelemetriDataByIdAsync(int id)
+        public async Task<List<Temp>> GetTemperatureDataByDeviceIdAsync(int deviceId)
         {
-            return await _context.Telemetri.FirstOrDefaultAsync(t => t.TelemetriDataID == id);
+            return await _context.Temperature.Where(t => t.Devices.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task<List<TelemetriData>> GetTelemetriDataByDeviceIdAsync(int deviceId)
+        public async Task InsertTemperatureData(Temp data)
         {
-            return await _context.Telemetri.Where(t => t.DeviceID == deviceId).OrderByDescending(t => t.Date).ToListAsync();
+            await _context.Temperature.AddAsync(data);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Humidity methods
+        public async Task<List<Hum>> GetHumidityDataAsync()
+        {
+            return await _context.Humidity.OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task<List<TelemetriData>> GetTelemetriDataByDateRangeAsync(DateTime startDate, DateTime endDate)
+        public async Task<List<Hum>> GetHumidityDataByDeviceIdAsync(int deviceId)
         {
-            return await _context.Telemetri.Where(t => t.Date >= startDate && t.Date <= endDate).OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.Humidity.Where(t => t.Devices.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task InsertTelemetriData(TelemetriData data)
+        public async Task InsertHumidityData(Hum data)
         {
-            await _context.Telemetri.AddAsync(data);
+            await _context.Humidity.AddAsync(data);
+            await _context.SaveChangesAsync();
         }
+        #endregion
     }
 }

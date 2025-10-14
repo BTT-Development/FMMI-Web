@@ -1,4 +1,6 @@
 ﻿using FMMI_Domain.Entities;
+using FMMI_Service.Services.TelemetriService;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using MQTTnet;
@@ -13,8 +15,10 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
     public class MQTTBackgroundService : BackgroundService
     {
         private readonly IMongoDatabase _dbConnection;
-        private readonly IMongoCollection<TelemetriData> _telemetryCollection;
+        private readonly IMongoCollection<Temp> _tempCollection;
+        private readonly IMongoCollection<Hum> _humCollection;
         private readonly IMqttClient _mqttClient;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         private static readonly MqttTopicTemplate _historyDataTemp = new("device/esp32/data/temperature");
         private static readonly MqttTopicTemplate _historyDataHumidity = new("device/esp32/data/humidity");
@@ -23,10 +27,11 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
 
         private readonly MqttClientOptions _mqttClientOptions;
 
-        public MQTTBackgroundService(IMongoDatabase database)
+        public MQTTBackgroundService(IMongoDatabase database,IServiceScopeFactory scopeFactory)
         {
             _dbConnection = database;
-            _telemetryCollection = _dbConnection.GetCollection<TelemetriData>("Telemetri");
+            _tempCollection = _dbConnection.GetCollection<Temp>("Telemetri");
+            _humCollection = _dbConnection.GetCollection<Hum>("Telemetri");
 
             var mqttFactory = new MqttFactory();
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -35,13 +40,15 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
                 .WithTcpServer("49987f455bc94d2183a5075a9fa78344.s1.eu.hivemq.cloud")
                 .WithCredentials("Worker", "fMMIWORKER1234")
                 .WithTlsOptions(_ => _.UseTls())
-                //.WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V311)
+                .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V311)
                 .WithCleanSession()
+                .WithKeepAlivePeriod(new TimeSpan(600000000))
                 .Build();
 
             _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceivedAsync;
 
             _mqttClient.DisconnectedAsync += HandleDisconnectedAsync;
+            _scopeFactory = scopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -88,16 +95,36 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         {
             try
             {
-                Console.WriteLine($"Received message on topic: {e.ApplicationMessage.Topic}");
-                TelemetriData? telemetry = JsonSerializer.Deserialize<TelemetriData>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                var topic = e.ApplicationMessage.Topic;
+                var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
+                Console.WriteLine($"Received: {topic} => {payload}");
 
-                if (telemetry != null)
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    await _telemetryCollection.InsertOneAsync(telemetry);
-                }
-                else
-                {
-                    Console.WriteLine($"Warning: Failed to deserialize MQTT message payload");
+                    var scopedService = scope.ServiceProvider.GetRequiredService<ITelemetriService>();
+
+                    if (string.Equals(topic, "device/esp32/data/temperature", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Temp? temp = JsonSerializer.Deserialize<Temp>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                        if (temp != null)
+                        {
+                            await _tempCollection.InsertOneAsync(temp);
+                            await scopedService.InsertTemperatureData(temp);
+                        }
+                    }
+                    else if (string.Equals(topic, "device/esp32/data/humidity", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Hum? Hum = JsonSerializer.Deserialize<Hum>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                        if (Hum != null)
+                        {
+                            await _humCollection.InsertOneAsync(Hum);
+                            await scopedService.InsertHumidityData(Hum);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Failed to deserialize MQTT message payload");
+                    }
                 }
             }
             catch (Exception ex)
@@ -106,18 +133,19 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
             }
         }
 
+
+
         private async Task SubscribeToTopicsAsync(CancellationToken stoppingToken)
         {
             var mqttFactory = new MqttFactory();
 
             var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-                .WithTopicFilter(f => f.WithTopic(_historyDataTemp.ToString()).WithAtLeastOnceQoS())
-                .WithTopicFilter(f => f.WithTopic(_historyDataHumidity.ToString()).WithAtLeastOnceQoS())
-                //.WithTopicFilter(f => f.WithTopic(_realTimeDataTemp.ToString()).WithAtLeastOnceQoS())
-                //.WithTopicFilter(f => f.WithTopic(_realTimeDataHumidity.ToString()).WithAtLeastOnceQoS())
+                .WithTopicFilter(f => f.WithTopic("device/esp32/data/temperature").WithAtLeastOnceQoS())
+                .WithTopicFilter(f => f.WithTopic("device/esp32/data/humidity").WithAtLeastOnceQoS())
                 .Build();
 
             await _mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);
+            Console.WriteLine("Subscribed to temperature and humidity topics.");
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)

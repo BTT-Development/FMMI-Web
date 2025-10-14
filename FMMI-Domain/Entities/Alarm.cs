@@ -9,8 +9,6 @@ namespace FMMI_Domain.Entities
 {
     public class Alarm
     {
-        [Key]
-        public int AlarmID { get; set; }
         public string Name { get; set; }
     }
 }
