@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FMMI_Domain.Migrations
 {
     [DbContext(typeof(FMMIContext))]
-    [Migration("20251014084953_init")]
-    partial class init
+    [Migration("20251014112236_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,17 +26,22 @@ namespace FMMI_Domain.Migrations
 
             modelBuilder.Entity("FMMI_Domain.Entities.Alarm", b =>
                 {
-                    b.Property<int>("AlarmID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AlarmID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("AlarmID");
+                    b.HasKey("Id");
 
                     b.ToTable("Alarms");
                 });
@@ -56,9 +61,6 @@ namespace FMMI_Domain.Migrations
                         .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("DeviceID")
-                        .HasColumnType("integer");
 
                     b.Property<int>("DeviceTypeID")
                         .HasColumnType("integer");
@@ -83,23 +85,6 @@ namespace FMMI_Domain.Migrations
 
             modelBuilder.Entity("FMMI_Domain.Entities.DeviceType", b =>
                 {
-                    b.Property<int>("DeviceTypeID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DeviceTypeID"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("DeviceTypeID");
-
-                    b.ToTable("DeviceTypes");
-                });
-
-            modelBuilder.Entity("FMMI_Domain.Entities.Hum", b =>
-                {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
@@ -111,14 +96,28 @@ namespace FMMI_Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeviceTypes");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.Hum", b =>
+                {
+                    b.Property<int>("HumID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("HumID"));
+
                     b.Property<string>("Date")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("DevicesID")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("HumID")
                         .HasColumnType("integer");
 
                     b.Property<double>("Humidity")
@@ -128,7 +127,7 @@ namespace FMMI_Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("HumID");
 
                     b.HasIndex("DevicesID");
 
@@ -152,9 +151,6 @@ namespace FMMI_Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("LocationID")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -165,16 +161,11 @@ namespace FMMI_Domain.Migrations
 
             modelBuilder.Entity("FMMI_Domain.Entities.Temp", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("TempID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasColumnType("text");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TempID"));
 
                     b.Property<string>("Date")
                         .IsRequired()
@@ -187,13 +178,10 @@ namespace FMMI_Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TempID")
-                        .HasColumnType("integer");
-
                     b.Property<double>("Temperature")
                         .HasColumnType("double precision");
 
-                    b.HasKey("Id");
+                    b.HasKey("TempID");
 
                     b.HasIndex("DevicesID");
 

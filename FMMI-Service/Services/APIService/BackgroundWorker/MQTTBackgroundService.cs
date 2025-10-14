@@ -20,10 +20,8 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         private readonly IMqttClient _mqttClient;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        private static readonly MqttTopicTemplate _historyDataTemp = new("device/esp32/data/temperature");
-        private static readonly MqttTopicTemplate _historyDataHumidity = new("device/esp32/data/humidity");
-        private static readonly MqttTopicTemplate _realTimeDataTemp = new("device/esp32/realtime/temperature");
-        private static readonly MqttTopicTemplate _realTimeDataHumidity = new("device/esp32/realtime/humidity");
+        private static readonly MqttTopicTemplate _historyDataTemp = new("device/+/data/#");
+        private static readonly MqttTopicTemplate _realTimeDataTemp = new("device/+/realtime/#");
 
         private readonly MqttClientOptions _mqttClientOptions;
 
@@ -32,6 +30,7 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
             _dbConnection = database;
             _tempCollection = _dbConnection.GetCollection<Temp>("Telemetri");
             _humCollection = _dbConnection.GetCollection<Hum>("Telemetri");
+            _scopeFactory = scopeFactory;
 
             var mqttFactory = new MqttFactory();
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -48,7 +47,6 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
             _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceivedAsync;
 
             _mqttClient.DisconnectedAsync += HandleDisconnectedAsync;
-            _scopeFactory = scopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -99,33 +97,29 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
                 var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
                 Console.WriteLine($"Received: {topic} => {payload}");
 
-                using (var scope = _scopeFactory.CreateScope())
+                if (string.Equals(topic, "device/esp32/data/temperature", StringComparison.OrdinalIgnoreCase))
                 {
-                    var scopedService = scope.ServiceProvider.GetRequiredService<ITelemetriService>();
-
-                    if (string.Equals(topic, "device/esp32/data/temperature", StringComparison.OrdinalIgnoreCase))
+                    Temp? temp = JsonSerializer.Deserialize<Temp>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    if (temp != null)
                     {
-                        Temp? temp = JsonSerializer.Deserialize<Temp>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
-                        if (temp != null)
-                        {
-                            await _tempCollection.InsertOneAsync(temp);
-                            await scopedService.InsertTemperatureData(temp);
-                        }
-                    }
-                    else if (string.Equals(topic, "device/esp32/data/humidity", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Hum? Hum = JsonSerializer.Deserialize<Hum>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
-                        if (Hum != null)
-                        {
-                            await _humCollection.InsertOneAsync(Hum);
-                            await scopedService.InsertHumidityData(Hum);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Warning: Failed to deserialize MQTT message payload");
+                        await _tempCollection.InsertOneAsync(temp);
+                        //await scopedService.InsertTemperatureData(temp);
                     }
                 }
+                else if (string.Equals(topic, "device/esp32/data/humidity", StringComparison.OrdinalIgnoreCase))
+                {
+                    Hum? Hum = JsonSerializer.Deserialize<Hum>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    if (Hum != null)
+                    {
+                        await _humCollection.InsertOneAsync(Hum);
+                        //await scopedService.InsertHumidityData(Hum);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Failed to deserialize MQTT message payload");
+                }
+               
             }
             catch (Exception ex)
             {

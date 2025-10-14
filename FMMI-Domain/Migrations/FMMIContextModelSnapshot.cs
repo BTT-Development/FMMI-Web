@@ -23,17 +23,22 @@ namespace FMMI_Domain.Migrations
 
             modelBuilder.Entity("FMMI_Domain.Entities.Alarm", b =>
                 {
-                    b.Property<int>("AlarmID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AlarmID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("AlarmID");
+                    b.HasKey("Id");
 
                     b.ToTable("Alarms");
                 });
@@ -53,9 +58,6 @@ namespace FMMI_Domain.Migrations
                         .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("DeviceID")
-                        .HasColumnType("integer");
 
                     b.Property<int>("DeviceTypeID")
                         .HasColumnType("integer");
@@ -80,17 +82,22 @@ namespace FMMI_Domain.Migrations
 
             modelBuilder.Entity("FMMI_Domain.Entities.DeviceType", b =>
                 {
-                    b.Property<int>("DeviceTypeID")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DeviceTypeID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("DeviceTypeID");
+                    b.HasKey("Id");
 
                     b.ToTable("DeviceTypes");
                 });
@@ -140,9 +147,6 @@ namespace FMMI_Domain.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("LocationID")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");

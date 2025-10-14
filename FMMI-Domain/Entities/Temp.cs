@@ -16,6 +16,8 @@ namespace FMMI_Domain.Entities
         [NotMapped]
         public ObjectId Id { get; set; }
 
+        [Key]
+        public int TempID { get; set; }
         public string Sensor { get; set; }
         public string Date { get; set; }
         public double Temperature { get; set; }

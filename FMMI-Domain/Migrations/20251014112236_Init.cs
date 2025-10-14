@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FMMI_Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,26 +15,28 @@ namespace FMMI_Domain.Migrations
                 name: "Alarms",
                 columns: table => new
                 {
-                    AlarmID = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Alarms", x => x.AlarmID);
+                    table.PrimaryKey("PK_Alarms", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "DeviceTypes",
                 columns: table => new
                 {
-                    DeviceTypeID = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DeviceTypes", x => x.DeviceTypeID);
+                    table.PrimaryKey("PK_DeviceTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -43,7 +45,6 @@ namespace FMMI_Domain.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    LocationID = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
@@ -59,7 +60,6 @@ namespace FMMI_Domain.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DeviceID = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     LocationID = table.Column<int>(type: "integer", nullable: false),
                     DeviceTypeID = table.Column<int>(type: "integer", nullable: false),
@@ -73,13 +73,13 @@ namespace FMMI_Domain.Migrations
                         name: "FK_Devices_Alarms_AlarmID",
                         column: x => x.AlarmID,
                         principalTable: "Alarms",
-                        principalColumn: "AlarmID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Devices_DeviceTypes_DeviceTypeID",
                         column: x => x.DeviceTypeID,
                         principalTable: "DeviceTypes",
-                        principalColumn: "DeviceTypeID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Devices_locations_LocationID",
@@ -93,18 +93,16 @@ namespace FMMI_Domain.Migrations
                 name: "Humidity",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    HumID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    HumID = table.Column<int>(type: "integer", nullable: false),
                     Sensor = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<string>(type: "text", nullable: false),
                     Humidity = table.Column<double>(type: "double precision", nullable: false),
-                    DevicesID = table.Column<int>(type: "integer", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
+                    DevicesID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Humidity", x => x.Id);
+                    table.PrimaryKey("PK_Humidity", x => x.HumID);
                     table.ForeignKey(
                         name: "FK_Humidity_Devices_DevicesID",
                         column: x => x.DevicesID,
@@ -117,18 +115,16 @@ namespace FMMI_Domain.Migrations
                 name: "Temperature",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    TempID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TempID = table.Column<int>(type: "integer", nullable: false),
                     Sensor = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<string>(type: "text", nullable: false),
                     Temperature = table.Column<double>(type: "double precision", nullable: false),
-                    DevicesID = table.Column<int>(type: "integer", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
+                    DevicesID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Temperature", x => x.Id);
+                    table.PrimaryKey("PK_Temperature", x => x.TempID);
                     table.ForeignKey(
                         name: "FK_Temperature_Devices_DevicesID",
                         column: x => x.DevicesID,

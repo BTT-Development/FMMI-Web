@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace FMMI_Domain.Entities
 {
+    [NotMapped]
     public class DeviceSettings : BaseIdEntity
     {
         public string SettingName { get; set; }
