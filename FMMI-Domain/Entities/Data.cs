@@ -1,6 +1,4 @@
 ﻿using FMMI_Domain.Entities.Base;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
@@ -12,20 +10,21 @@ using System.Threading.Tasks;
 
 namespace FMMI_Domain.Entities
 {
-    public class Hum
+    public class Data
     {
         [NotMapped]
-        public ObjectId Id { get; set; }
+        public ObjectId Id { get; set; } // MongoDB internal ID
 
-        [Key]
-        public int HumID { get; set; }
-        public string Sensor { get; set; }
+        public int ID { get; set; } // Relational DB ID
         public string Date { get; set; }
-        public double Humidity { get; set; }
+        public double Value { get; set; }
+
 
         #region Navigations property
         [ForeignKey("DevicesID")]
         public Device Devices { get; set; }
+        [ForeignKey("DataTypeID")]
+        public DataType Type { get; set; }
         #endregion
     }
 }

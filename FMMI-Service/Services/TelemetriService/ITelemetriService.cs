@@ -11,15 +11,11 @@ namespace FMMI_Service.Services.TelemetriService
     public interface ITelemetriService
     {
         #region Temperature methods
-        Task<List<Temp>> GetTemperatureDataAsync();
-        Task<List<Temp>> GetTemperatureDataByDeviceIdAsync(int deviceId);
-        Task InsertTemperatureData(Temp data);
+        Task<List<Data>> GetTemperatureDataAsync();
+        Task<List<Data>> GetTemperatureDataByDeviceIdAsync(int deviceId);
+        Task InsertTemperatureData(Data data);
         #endregion
 
-        #region Humidity methods
-        Task<List<Hum>> GetHumidityDataAsync();
-        Task<List<Hum>> GetHumidityDataByDeviceIdAsync(int deviceId);
-        Task InsertHumidityData(Hum data);
-        #endregion
+     
     }
 }

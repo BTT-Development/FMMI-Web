@@ -15,8 +15,7 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
     public class MQTTBackgroundService : BackgroundService
     {
         private readonly IMongoDatabase _dbConnection;
-        private readonly IMongoCollection<Temp> _tempCollection;
-        private readonly IMongoCollection<Hum> _humCollection;
+        private readonly IMongoCollection<Data> _dataCollection;
         private readonly IMqttClient _mqttClient;
         private readonly IServiceScopeFactory _scopeFactory;
 
@@ -28,8 +27,7 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         public MQTTBackgroundService(IMongoDatabase database,IServiceScopeFactory scopeFactory)
         {
             _dbConnection = database;
-            _tempCollection = _dbConnection.GetCollection<Temp>("Telemetri");
-            _humCollection = _dbConnection.GetCollection<Hum>("Telemetri");
+            _dataCollection = _dbConnection.GetCollection<Data>("Telemetri");
             _scopeFactory = scopeFactory;
 
             var mqttFactory = new MqttFactory();
@@ -97,29 +95,19 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
                 var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
                 Console.WriteLine($"Received: {topic} => {payload}");
 
-                if (string.Equals(topic, "device/esp32/data/temperature", StringComparison.OrdinalIgnoreCase))
+                if (payload != null)
                 {
-                    Temp? temp = JsonSerializer.Deserialize<Temp>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
-                    if (temp != null)
+                    Data data = JsonSerializer.Deserialize<Data>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    if (data != null)
                     {
-                        await _tempCollection.InsertOneAsync(temp);
+                        await _dataCollection.InsertOneAsync(data);
                         //await scopedService.InsertTemperatureData(temp);
-                    }
-                }
-                else if (string.Equals(topic, "device/esp32/data/humidity", StringComparison.OrdinalIgnoreCase))
-                {
-                    Hum? Hum = JsonSerializer.Deserialize<Hum>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
-                    if (Hum != null)
-                    {
-                        await _humCollection.InsertOneAsync(Hum);
-                        //await scopedService.InsertHumidityData(Hum);
                     }
                 }
                 else
                 {
                     Console.WriteLine($"Warning: Failed to deserialize MQTT message payload");
                 }
-               
             }
             catch (Exception ex)
             {

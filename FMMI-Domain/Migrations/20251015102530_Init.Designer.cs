@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FMMI_Domain.Migrations
 {
     [DbContext(typeof(FMMIContext))]
-    [Migration("20251014112236_Init")]
+    [Migration("20251015102530_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -44,6 +44,58 @@ namespace FMMI_Domain.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Alarms");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.Data", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("DataTypeID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Date")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DevicesID")
+                        .HasColumnType("integer");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DataTypeID");
+
+                    b.HasIndex("DevicesID");
+
+                    b.ToTable("TelemetriData");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.DataType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataTypes");
                 });
 
             modelBuilder.Entity("FMMI_Domain.Entities.Device", b =>
@@ -105,35 +157,6 @@ namespace FMMI_Domain.Migrations
                     b.ToTable("DeviceTypes");
                 });
 
-            modelBuilder.Entity("FMMI_Domain.Entities.Hum", b =>
-                {
-                    b.Property<int>("HumID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("HumID"));
-
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("DevicesID")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("Humidity")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Sensor")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("HumID");
-
-                    b.HasIndex("DevicesID");
-
-                    b.ToTable("Humidity");
-                });
-
             modelBuilder.Entity("FMMI_Domain.Entities.Location", b =>
                 {
                     b.Property<int>("Id")
@@ -159,33 +182,23 @@ namespace FMMI_Domain.Migrations
                     b.ToTable("locations");
                 });
 
-            modelBuilder.Entity("FMMI_Domain.Entities.Temp", b =>
+            modelBuilder.Entity("FMMI_Domain.Entities.Data", b =>
                 {
-                    b.Property<int>("TempID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                    b.HasOne("FMMI_Domain.Entities.DataType", "Type")
+                        .WithMany()
+                        .HasForeignKey("DataTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TempID"));
+                    b.HasOne("FMMI_Domain.Entities.Device", "Devices")
+                        .WithMany()
+                        .HasForeignKey("DevicesID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<string>("Date")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Navigation("Devices");
 
-                    b.Property<int>("DevicesID")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Sensor")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("Temperature")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("TempID");
-
-                    b.HasIndex("DevicesID");
-
-                    b.ToTable("Temperature");
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("FMMI_Domain.Entities.Device", b =>
@@ -213,28 +226,6 @@ namespace FMMI_Domain.Migrations
                     b.Navigation("DeviceType");
 
                     b.Navigation("Location");
-                });
-
-            modelBuilder.Entity("FMMI_Domain.Entities.Hum", b =>
-                {
-                    b.HasOne("FMMI_Domain.Entities.Device", "Devices")
-                        .WithMany()
-                        .HasForeignKey("DevicesID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Devices");
-                });
-
-            modelBuilder.Entity("FMMI_Domain.Entities.Temp", b =>
-                {
-                    b.HasOne("FMMI_Domain.Entities.Device", "Devices")
-                        .WithMany()
-                        .HasForeignKey("DevicesID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Devices");
                 });
 #pragma warning restore 612, 618
         }

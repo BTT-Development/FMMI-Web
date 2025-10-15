@@ -15,37 +15,19 @@ namespace FMMI_Service.Services.TelemetriService
 
         #region Temperature methods
 
-        public async Task<List<Temp>> GetTemperatureDataAsync()
+        public async Task<List<Data>> GetTemperatureDataAsync()
         {
-            return await _context.Temperature.OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.TelemetriData.OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task<List<Temp>> GetTemperatureDataByDeviceIdAsync(int deviceId)
+        public async Task<List<Data>> GetTemperatureDataByDeviceIdAsync(int deviceId)
         {
-            return await _context.Temperature.Where(t => t.Devices.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.TelemetriData.Where(t => t.Devices.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
         }
 
-        public async Task InsertTemperatureData(Temp data)
+        public async Task InsertTemperatureData(Data data)
         {
-            await _context.Temperature.AddAsync(data);
-            await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Humidity methods
-        public async Task<List<Hum>> GetHumidityDataAsync()
-        {
-            return await _context.Humidity.OrderByDescending(t => t.Date).ToListAsync();
-        }
-
-        public async Task<List<Hum>> GetHumidityDataByDeviceIdAsync(int deviceId)
-        {
-            return await _context.Humidity.Where(t => t.Devices.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
-        }
-
-        public async Task InsertHumidityData(Hum data)
-        {
-            await _context.Humidity.AddAsync(data);
+            await _context.TelemetriData.AddAsync(data);
             await _context.SaveChangesAsync();
         }
         #endregion

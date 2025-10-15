@@ -26,6 +26,20 @@ namespace FMMI_Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DataTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TypeName = table.Column<string>(type: "text", nullable: false),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DataTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DeviceTypes",
                 columns: table => new
                 {
@@ -90,43 +104,27 @@ namespace FMMI_Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Humidity",
+                name: "TelemetriData",
                 columns: table => new
                 {
-                    HumID = table.Column<int>(type: "integer", nullable: false)
+                    ID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Sensor = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<string>(type: "text", nullable: false),
-                    Humidity = table.Column<double>(type: "double precision", nullable: false),
-                    DevicesID = table.Column<int>(type: "integer", nullable: false)
+                    Value = table.Column<double>(type: "double precision", nullable: false),
+                    DevicesID = table.Column<int>(type: "integer", nullable: false),
+                    DataTypeID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Humidity", x => x.HumID);
+                    table.PrimaryKey("PK_TelemetriData", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Humidity_Devices_DevicesID",
-                        column: x => x.DevicesID,
-                        principalTable: "Devices",
+                        name: "FK_TelemetriData_DataTypes_DataTypeID",
+                        column: x => x.DataTypeID,
+                        principalTable: "DataTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Temperature",
-                columns: table => new
-                {
-                    TempID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Sensor = table.Column<string>(type: "text", nullable: false),
-                    Date = table.Column<string>(type: "text", nullable: false),
-                    Temperature = table.Column<double>(type: "double precision", nullable: false),
-                    DevicesID = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Temperature", x => x.TempID);
                     table.ForeignKey(
-                        name: "FK_Temperature_Devices_DevicesID",
+                        name: "FK_TelemetriData_Devices_DevicesID",
                         column: x => x.DevicesID,
                         principalTable: "Devices",
                         principalColumn: "Id",
@@ -149,13 +147,13 @@ namespace FMMI_Domain.Migrations
                 column: "LocationID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Humidity_DevicesID",
-                table: "Humidity",
-                column: "DevicesID");
+                name: "IX_TelemetriData_DataTypeID",
+                table: "TelemetriData",
+                column: "DataTypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Temperature_DevicesID",
-                table: "Temperature",
+                name: "IX_TelemetriData_DevicesID",
+                table: "TelemetriData",
                 column: "DevicesID");
         }
 
@@ -163,10 +161,10 @@ namespace FMMI_Domain.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Humidity");
+                name: "TelemetriData");
 
             migrationBuilder.DropTable(
-                name: "Temperature");
+                name: "DataTypes");
 
             migrationBuilder.DropTable(
                 name: "Devices");
