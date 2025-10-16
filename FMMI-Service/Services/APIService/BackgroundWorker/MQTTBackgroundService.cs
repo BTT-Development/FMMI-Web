@@ -17,7 +17,6 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         private readonly IMongoDatabase _dbConnection;
         private readonly IMongoCollection<Data> _dataCollection;
         private readonly IMqttClient _mqttClient;
-        private readonly IServiceScopeFactory _scopeFactory;
 
         private static readonly MqttTopicTemplate _historyDataTemp = new("device/+/data/#");
         private static readonly MqttTopicTemplate _realTimeDataTemp = new("device/+/realtime/#");
@@ -100,7 +99,6 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
                     if (data != null)
                     {
                         await _dataCollection.InsertOneAsync(data);
-                        //await scopedService.InsertTemperatureData(temp);
                     }
                 }
                 else
