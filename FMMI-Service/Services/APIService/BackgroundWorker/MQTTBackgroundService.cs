@@ -1,4 +1,5 @@
-﻿using FMMI_Domain.Entities;
+﻿using FMMI_Domain;
+using FMMI_Domain.Entities;
 using FMMI_Service.Services.TelemetriService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +18,7 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         private readonly IMongoDatabase _dbConnection;
         private readonly IMongoCollection<Data> _dataCollection;
         private readonly IMqttClient _mqttClient;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         private static readonly MqttTopicTemplate _historyDataTemp = new("device/+/data/#");
         private static readonly MqttTopicTemplate _realTimeDataTemp = new("device/+/realtime/#");
@@ -27,6 +29,7 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         {
             _dbConnection = database;
             _dataCollection = _dbConnection.GetCollection<Data>("Telemetri");
+            _scopeFactory = scopeFactory;
 
             var mqttFactory = new MqttFactory();
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -86,6 +89,7 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
 
         private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
         {
+            var scope = _scopeFactory.CreateScope();
             try
             {
                 var topic = e.ApplicationMessage.Topic;
@@ -98,6 +102,16 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
                     if (data != null)
                     {
                         await _dataCollection.InsertOneAsync(data);
+                        try
+                        {
+                            var dbContext = scope.ServiceProvider.GetRequiredService<FMMIContext>();
+                            await dbContext.TelemetriData.AddAsync(data);
+                            await dbContext.SaveChangesAsync();
+                        }
+                        finally
+                        {
+                            scope.Dispose();
+                        }
                     }
                 }
                 else
