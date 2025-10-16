@@ -3,15 +3,17 @@ using FMMI_Domain.Entities;
 using FMMI_Service.Services.TelemetriService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 using MongoDB.Driver;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.TopicTemplate;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 
-namespace FMMI_Service.Services.APIService.BackgroundWorker
+namespace FMMI_Service.BackgroundWorker
 {
     public class MQTTBackgroundService : BackgroundService
     {
@@ -90,21 +92,25 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
         {
             var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<FMMIContext>();
             try
             {
+
                 var topic = e.ApplicationMessage.Topic;
                 var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
                 Console.WriteLine($"Received: {topic} => {payload}");
 
-                if (payload != null)
+                if (!string.IsNullOrEmpty(payload))
                 {
-                    Data data = JsonSerializer.Deserialize<Data>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    var data = JsonSerializer.Deserialize<Data>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
                     if (data != null)
                     {
                         await _dataCollection.InsertOneAsync(data);
                         try
                         {
-                            var dbContext = scope.ServiceProvider.GetRequiredService<FMMIContext>();
+                            DateTime parsedDate = DateTime.ParseExact(data.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                            DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                            data.Dates = utcDate;
                             await dbContext.TelemetriData.AddAsync(data);
                             await dbContext.SaveChangesAsync();
                         }

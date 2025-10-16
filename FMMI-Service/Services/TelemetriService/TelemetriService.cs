@@ -22,7 +22,7 @@ namespace FMMI_Service.Services.TelemetriService
 
         public async Task<List<Data>> GetTemperatureDataByDeviceIdAsync(int deviceId)
         {
-            return await _context.TelemetriData.Where(t => t.Devices.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.TelemetriData.Where(t => t.Device.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
         }
 
         public async Task InsertTemperatureData(Data data)

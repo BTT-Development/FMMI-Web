@@ -14,7 +14,7 @@ namespace FMMI_Domain.Entities.Base
         public int Id { get; set; }
 
         [ConcurrencyCheck]
-        public virtual string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
+        public virtual string ConcurrencyStamp { get; set; }
 
     }
 }

@@ -14,17 +14,20 @@ namespace FMMI_Domain.Entities
     {
         [NotMapped]
         public ObjectId Id { get; set; } // MongoDB internal ID
+        [NotMapped]
+        public string Date { get; set; }
 
         public int ID { get; set; } // Relational DB ID
-        public string Date { get; set; }
+        public DateTime Dates { get; set; }
         public double Value { get; set; }
 
 
         #region Navigations property
-        [ForeignKey("DevicesID")]
-        public Device Devices { get; set; }
-        [ForeignKey("DataTypeID")]
-        public DataType Type { get; set; }
+        public int DeviceID { get; set; }
+        public Device Device { get; set; }
+        
+        public int DataTypeID { get; set; }
+        public DataType DataType { get; set; }
         #endregion
     }
 }

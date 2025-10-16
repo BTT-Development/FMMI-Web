@@ -1,4 +1,4 @@
-﻿using FMMI_Service.Services.APIService.BackgroundWorker;
+﻿using FMMI_Service.BackgroundWorker;
 using FMMI_Service.Services.TelemetriService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

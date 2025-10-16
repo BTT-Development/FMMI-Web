@@ -10,5 +10,6 @@ namespace FMMI_Domain.Entities
     public class DataType : BaseIdEntity
     {
         public string TypeName { get; set; }
+        public string Unit { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 using FMMI_Domain;
-using FMMI_Service.Services.APIService.BackgroundWorker;
+using FMMI_Service.BackgroundWorker;
 using FMMI_Worker;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
