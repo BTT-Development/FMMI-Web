@@ -13,7 +13,7 @@ namespace FMMI_Service.Services.TelemetriService
              _context = context;
         }
 
-        #region Temperature methods
+        #region Data methods
 
         public async Task<List<Data>> GetTemperatureDataAsync()
         {

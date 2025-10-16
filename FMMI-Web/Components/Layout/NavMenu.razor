@@ -16,7 +16,8 @@
                         <li class="nav-item">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="btn-group">
-                                    <AuthorizeView Roles="Admin" Context="AdminDropdown">
+                                    <AuthorizeView Context="AdminDropdown">
+                                        <button class="btn btn-info btn-sm py-0">@context.User.Identity?.Name</button>
                                         <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split btn-sm py-0" data-bs-toggle="dropdown"></button>
                                         <ul class="dropdown-menu dropdown-menu-lg-end">
                                             <li>
@@ -27,12 +28,16 @@
                                         </ul>
                                     </AuthorizeView>
                                 </div>
-                                <NavLink class="btn btn-danger btn-sm py-0" href="api/sso/logout" title="Logout">
-                                    <i class="fa-solid fa-right-from-bracket fa-fw "></i>
+                                <NavLink class="btn btn-danger btn-sm py-0" href="/logout" title="Logout">
+                                    <i class="fa-solid fa-right-from-bracket fa-fw ">Logout</i>
                                 </NavLink>
                             </div>
                         </li>
                     </Authorized>
+                    <NotAuthorized>
+                        <NavLink class="btn btn-success" href="/login">Login</NavLink>
+                    </NotAuthorized>
+
                 </AuthorizeView>
             </ul>
         </div>

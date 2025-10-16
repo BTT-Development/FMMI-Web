@@ -68,7 +68,6 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
                     catch (Exception ex)
                     {
                         Console.WriteLine($"MQTT connection failed: {ex.Message}. Retrying in 5 seconds...");
-                        // Vent før genforsøg
                         await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
                     }
                 }
