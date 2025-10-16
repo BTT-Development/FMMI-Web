@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMMI-Service", "FMMI-Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMMI-API", "FMMI-API\FMMI-API.csproj", "{A7CF5EFA-F27A-437A-9132-D744D7502534}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMMI-Worker", "FMMI-Worker\FMMI-Worker.csproj", "{983921E2-8D93-4381-BA77-3626EB798285}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{A7CF5EFA-F27A-437A-9132-D744D7502534}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7CF5EFA-F27A-437A-9132-D744D7502534}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7CF5EFA-F27A-437A-9132-D744D7502534}.Release|Any CPU.Build.0 = Release|Any CPU
+		{983921E2-8D93-4381-BA77-3626EB798285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{983921E2-8D93-4381-BA77-3626EB798285}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{983921E2-8D93-4381-BA77-3626EB798285}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{983921E2-8D93-4381-BA77-3626EB798285}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

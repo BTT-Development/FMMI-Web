@@ -27,7 +27,6 @@ namespace FMMI_Service.Services.APIService.BackgroundWorker
         {
             _dbConnection = database;
             _dataCollection = _dbConnection.GetCollection<Data>("Telemetri");
-            _scopeFactory = scopeFactory;
 
             var mqttFactory = new MqttFactory();
             _mqttClient = mqttFactory.CreateMqttClient();
