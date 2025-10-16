@@ -1,0 +1,135 @@
+﻿@page "/DivicesOverviewPage"
+@using FMMI_Service.DTO.Device
+@rendermode InteractiveServer
+
+<div class="d-flex justify-content-start">
+    <div class="col-2 align-items-start  border border-dark-subtle border-top-0 border-bottom-0 border-start-0 min-vh-100 bg-body-secondary border-1">
+        <div class="d-flex justify-content-center">
+            <p>Lokationer</p>
+        </div>
+        @foreach ((string name, int id) item in _listLocationNameAndId)
+        {
+            int index = _listLocationNameAndId.IndexOf(item);
+            <div class="pointer p-1 m-2 rounded-3 @(_pickedLocation[index] ? "bg-secondary-subtle" : "")" @onclick="() => ClickLocationName(item.id, index)">@item.name</div>
+        }
+    </div>
+    @if (_showMachines)
+     {
+        <div class="col-2 align-items-start border border-dark-subtle border-top-0 border-bottom-0 border-start-0 min-vh-100 bg-body-secondary border-1">
+            <div class="d-flex justify-content-center">
+                <p>Maskiner</p>
+            </div>
+            @foreach (var item in _listMachineNameAndId)
+            {
+                int index = _listMachineNameAndId.IndexOf(item);
+                <div class="pointer p-1 m-2 rounded-3 @(_pickedMachine[index] ? "bg-secondary-subtle" : "")" @onclick="() => ClickMachineName(item.id, index)">@item.name</div>
+            }
+            
+        </div>
+     }
+    @if (_showDevices)
+    {
+        
+    <div class="col-8 justify-content-center min-vh-100 bg-white">
+            <div class="d-flex justify-content-center">
+                <p>Maskiner</p>
+            </div>
+        @foreach (var item in _devices)
+            {
+                <FMMI_Web.Components.Device.DeviceComponent Device="item"/>
+            }
+    </div>
+    }
+
+</div>
+
+@code {
+    private List<(string name, int id)> _listMachineNameAndId = new();
+    private List<(string name, int id)> _listLocationNameAndId = new();
+
+    private List<(string name, int id, int locationid)> _machineList = new();
+    bool _showMachines = false;
+    bool _showDevices = false;
+    private List<ShowDeviceDTO> _devices = new();
+
+    private bool[] _pickedLocation;
+
+    private bool[] _pickedMachine;
+
+    private List<ShowDeviceDTO> loadDevices = new() {
+        new ShowDeviceDTO() {Id = 1, Name = "Device1", Type = "følger", online = true, MachineId = 1},
+        new ShowDeviceDTO() {Id = 2, Name = "Device2", Type = "følger", online = true, MachineId = 1},
+         new ShowDeviceDTO() {Id = 3, Name = "Device3", Type = "følger", online = true, MachineId = 1},
+        new ShowDeviceDTO() {Id = 4, Name = "Device4", Type = "følger", online = true, MachineId = 2 },
+         new ShowDeviceDTO() {Id = 5, Name = "Device5", Type = "følger", online = true, MachineId =2},
+        new ShowDeviceDTO() {Id = 6, Name = "Device6", Type = "følger", online = true , MachineId =3},
+         new ShowDeviceDTO() {Id = 7, Name = "Device7", Type = "følger", online = true, MachineId = 4 },
+        new ShowDeviceDTO() {Id = 8, Name = "Device8", Type = "følger", online = true, MachineId = 4 },
+         new ShowDeviceDTO() {Id = 9, Name = "Device9", Type = "følger", online = true, MachineId = 5 },
+        new ShowDeviceDTO() {Id = 10, Name = "Device10", Type = "følger", online = true, MachineId = 5 },
+         new ShowDeviceDTO() {Id = 11, Name = "Device11", Type = "følger", online = true, MachineId = 6 },
+        new ShowDeviceDTO() {Id = 12, Name = "Device12", Type = "følger", online = true, MachineId = 6 },
+         new ShowDeviceDTO() {Id = 13, Name = "Device13", Type = "følger", online = true, MachineId = 6 }
+
+    };
+
+    protected override void OnInitialized()
+    {
+        _listLocationNameAndId.Add(("kuglerum1", 1));
+        _listLocationNameAndId.Add(("kuglerum2", 2));
+        _listLocationNameAndId.Add(("kuglerum3", 3));
+
+        _pickedLocation = new bool[_listLocationNameAndId.Count];
+
+        _machineList.Add(("machine1", 1, 1));
+        _machineList.Add(("machine2", 2, 1));
+        _machineList.Add(("machine3", 3, 1));
+        _machineList.Add(("machine4", 4, 1));
+        _machineList.Add(("machine5", 5, 2));
+        _machineList.Add(("machine6", 6, 2));
+        _machineList.Add(("machine7", 7, 2));
+        _machineList.Add(("machine8", 8, 2));
+        _machineList.Add(("machine9", 9, 2));
+        _machineList.Add(("machine10", 10, 2));
+        _machineList.Add(("machine11", 11, 3));
+        _machineList.Add(("machine12", 12, 3));
+        _machineList.Add(("machine13", 13, 3));
+
+        _pickedMachine = new bool[_machineList.Count];
+    }
+    private void ClickLocationName(int id, int index)
+    {
+        _listMachineNameAndId.Clear();
+        _devices.Clear();
+        foreach (var item in _machineList)
+        {
+            if (item.locationid == id)
+            {
+                _listMachineNameAndId.Add((item.name, item.id));
+            }
+        }
+        _pickedLocation = new bool[_listLocationNameAndId.Count];
+        _pickedLocation[index] = true;
+        _pickedMachine = new bool[_machineList.Count];
+        _showMachines = true;
+        _showDevices = false;
+        StateHasChanged();
+    }
+    private void ClickMachineName(int id, int index)
+    {
+        _devices.Clear();
+        foreach (var item in loadDevices)
+        {
+            if (item.MachineId == id)
+            {
+                _devices.Add(item);
+            }
+        }
+        _pickedMachine = new bool[_machineList.Count];
+        _pickedMachine[index] = true;
+      
+        _showDevices = true;
+        StateHasChanged();
+    }
+
+}

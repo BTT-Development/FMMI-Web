@@ -8,7 +8,7 @@ namespace FMMI_Service.Services.TelemetriService
     internal class TelemetriService : ITelemetriService
     {
         private readonly FMMIContext _context;
-        public TelemetriService(FMMIContext context)
+        public TelemetriService(FMMIContext context) 
         {
              _context = context;
         }

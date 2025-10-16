@@ -1,0 +1,50 @@
+﻿@using FMMI_Service.DTO.Device
+@using FMMI_Web.Components.Modal
+@rendermode InteractiveServer
+
+<div @onclick="() => OpenDeviceModal()" class="d-flex align-items-center border rounded m-2 p-2 bg-grey-one border-secondary-subtle fs-c bg-body-secondary" >
+    <div class="w-25">@Device.Name</div>
+    
+    <div class="ms-2">@Device.Type</div>
+
+    <div class="d-flex justify-items-center ms-auto">
+        <i class="bi bi-wifi-2 text-success"></i>
+        <i class="bi bi-wifi-off text-danger"></i>
+    </div>
+</div>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public ShowDeviceDTO Device { get; set; }
+
+    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+
+    private async Task OpenDeviceModal()
+    {
+        var options = new ModalOptions()
+        {
+            Size = ModalSize.Custom,
+            SizeCustomClass = "modal-size",
+            Position = ModalPosition.Middle,
+            HideHeader = true,
+        };
+
+        var modal = Modal!.Show<DeviceOverviewModal>(options);
+
+        var result = await modal.Result;
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled");
+        }
+        else if (result.Confirmed)
+        {
+            Console.WriteLine("Modal was closed");
+        }
+    }
+
+  
+
+
+}

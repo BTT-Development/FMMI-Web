@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using FMMI_Domain;
 using FMMI_Web.Components;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -12,9 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddSyncfusionBlazor();
+builder.Services.AddBlazoredModal();
 
-builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+//builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+//    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 
 
 builder.Services.AddControllersWithViews()
@@ -50,11 +53,11 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQx
 #endregion
 
 #region Create database schema if not exists
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<FMMIContext>();
-    db.Database.Migrate(); // 
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<FMMIContext>();
+//    db.Database.Migrate(); // 
+//}
 #endregion
 
 // Configure the HTTP request pipeline.
