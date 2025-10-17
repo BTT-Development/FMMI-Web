@@ -1,5 +1,6 @@
 using Blazored.Modal;
 using FMMI_Domain;
+using FMMI_Service;
 using FMMI_Web.Components;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -46,6 +47,7 @@ builder.Services.AddSession(options =>
 });
 #endregion
 
+builder.AppendServiceConfiguration();
 
 var app = builder.Build();
 
