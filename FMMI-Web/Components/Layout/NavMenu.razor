@@ -8,15 +8,15 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-
+        <NavLink class="dropdown-item" href="/DivicesOverviewPage">
+            <i class="fa-solid fa-calendar-days fa-fw text-white"></i> Devices
+        </NavLink>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-          @*       <AuthorizeView>
-                    <Authorized> *@
+                 <AuthorizeView>
+                    <Authorized>
                         <li class="nav-item">
-                    <NavLink class="dropdown-item" href="/DivicesOverviewPage">
-                        <i class="fa-solid fa-calendar-days fa-fw text-white"></i> Devices
-                    </NavLink>
+                  
                         </li>
                         <li class="nav-item">
                             <div class="d-flex align-items-center gap-2">
@@ -31,7 +31,7 @@
                                                 </NavLink>
                                             </li>
                                         </ul>
-                                  @*   </AuthorizeView> *@
+                                     </AuthorizeView> 
                                 </div>
                                 <NavLink class="btn btn-danger btn-sm py-0" href="/logout" title="Logout">
                                     <i class="fa-solid fa-right-from-bracket fa-fw ">Logout</i>
@@ -49,20 +49,20 @@
 
     protected override void OnInitialized()
     {
-        //currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        //NavigationManager.LocationChanged += OnLocationChanged;
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
     }
     
   
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        //currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
         StateHasChanged();
     }
 
     public void Dispose()
     {
-        //NavigationManager.LocationChanged -= OnLocationChanged;
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

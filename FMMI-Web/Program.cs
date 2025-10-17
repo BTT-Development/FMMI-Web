@@ -17,8 +17,8 @@ builder.Services.AddSyncfusionBlazor();
 builder.Services.AddBlazoredModal();
 
 
-//builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-//    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 
 
 builder.Services.AddControllersWithViews()
