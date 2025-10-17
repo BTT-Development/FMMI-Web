@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FMMI-Domain\FMMI-Domain.csproj" />
+    <ProjectReference Include="..\FMMI-Service\FMMI-Service.csproj" />
   </ItemGroup>
 
 </Project>

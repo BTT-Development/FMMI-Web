@@ -22,9 +22,6 @@ namespace FMMI_Service
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<ITelemetriService, TelemetriService>();
-            
-
-
             return services;
         }
 

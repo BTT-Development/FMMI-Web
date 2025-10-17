@@ -1,4 +1,5 @@
-﻿@using Syncfusion.Blazor.Internal;
+﻿@using FMMI_Domain.Entities
+@using Syncfusion.Blazor.Internal;
 <h3>DashboardComponent</h3>
 
 <div class="content">
@@ -99,6 +100,8 @@
     SfChart barchartObj;
     SfChart linechartObj;
     private object[] Value = new object[] { new DateTime(2025, 01, 01), new DateTime(2025, 10, 01) };
+
+    public List<Data> TelemetriData = new List<Data>();
     public class ChartData
     {
         public DateTime XValue { get; set; }

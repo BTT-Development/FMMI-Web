@@ -11,9 +11,9 @@ namespace FMMI_Service.Services.TelemetriService
     public interface ITelemetriService
     {
         #region Temperature methods
-        Task<List<Data>> GetTemperatureDataAsync();
-        Task<List<Data>> GetTemperatureDataByDeviceIdAsync(int deviceId);
-        Task InsertTemperatureData(Data data);
+        Task<List<Data>> GetDataAsync();
+        Task<List<Data>> GetDataByDeviceIdAsync(int deviceId);
+        Task InsertData(Data data);
         #endregion
 
      

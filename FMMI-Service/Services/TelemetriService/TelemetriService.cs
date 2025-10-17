@@ -14,18 +14,25 @@ namespace FMMI_Service.Services.TelemetriService
         }
 
         #region Data methods
-
-        public async Task<List<Data>> GetTemperatureDataAsync()
+        public async Task<List<Data>> GetDataAsync()
         {
-            return await _context.TelemetriData.OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.TelemetriData.ToListAsync();
         }
 
-        public async Task<List<Data>> GetTemperatureDataByDeviceIdAsync(int deviceId)
+        public async Task<List<Data>> GetDataByDeviceIdAsync(int deviceId)
         {
-            return await _context.TelemetriData.Where(t => t.Device.Id == deviceId).OrderByDescending(t => t.Date).ToListAsync();
+            return await _context.TelemetriData.Where(t => t.Device.Id == deviceId).ToListAsync();
         }
 
-        public async Task InsertTemperatureData(Data data)
+        public async Task<List<Data>> GetDataByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.TelemetriData
+                .Where(t => t.Dates >= startDate && t.Dates <= endDate)
+                .ToListAsync();
+        }
+
+
+        public async Task InsertData(Data data)
         {
             await _context.TelemetriData.AddAsync(data);
             await _context.SaveChangesAsync();

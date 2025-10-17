@@ -91,7 +91,7 @@ namespace FMMI_Service.BackgroundWorker
 
         private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
         {
-            var scope = _scopeFactory.CreateScope();
+            var scope = _scopeFactory.CreateScope(); 
             var dbContext = scope.ServiceProvider.GetRequiredService<FMMIContext>();
             try
             {
