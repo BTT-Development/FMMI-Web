@@ -46,6 +46,7 @@ builder.Services.AddSession(options =>
 });
 #endregion
 
+builder.AppendServiceConfiguration();
 
 var app = builder.Build();
 
