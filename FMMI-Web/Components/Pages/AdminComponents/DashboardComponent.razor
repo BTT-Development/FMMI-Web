@@ -1,4 +1,8 @@
-﻿<h3>DashboardComponent</h3>
+﻿@using FMMI_Domain.Entities
+@using FMMI_Service.Services.TelemetriService
+@inject ITelemetriService _service
+
+<h3>DashboardComponent</h3>
 
 <div class="content">
     <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10 })">
@@ -93,11 +97,35 @@
 </div>
 
 @code
- { 
+{
+
+    public List<Data> telemetriData = new List<Data>();
     SfChart chartObj;
     SfChart barchartObj;
     SfChart linechartObj;
     private object[] Value = new object[] { new DateTime(2025, 01, 01), new DateTime(2025, 10, 01) };
+    
+    public List<ChartData> DataSource = new List<ChartData>();
+
+    protected async  override Task OnInitializedAsync()
+    {
+        telemetriData = await _service.GetDataAsync();
+        DataSource = telemetriData.Select(td => new ChartData
+        {
+            XValue = td.Dates,
+            YValue = td.Value,
+            X = td.DataType.TypeName,
+            Y = td.Value,
+            X1 = td.Dates.Year.ToString()
+        }).ToList();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        
+    }
+
+
     public class ChartData
     {
         public DateTime XValue { get; set; }
@@ -110,26 +138,6 @@
         public double Y2 { get; set; }
         public double Y3 { get; set; }
         public double Y4 { get; set; }
-    }
-    public List<ChartData> DataSource = new List<ChartData>
-{
-        new ChartData { XValue = new DateTime(2005, 01, 01), YValue = 21, X = "USA", Y =300.2, Country = "USA: 72", X1= "2012"},
-        new ChartData { XValue = new DateTime(2006, 01, 01), YValue = 24, X = "Russia", Y = 103.1, Country = "RUS: 103.1", X1= "2013"},
-        new ChartData { XValue = new DateTime(2007, 01, 01), YValue = 36, X = "Brazil", Y = 139.1, Country = "BRZ: 139.1", X1= "2014"},
-        new ChartData { XValue = new DateTime(2008, 01, 01), YValue = 38, X = "India", Y = 262.1, Country = "IND: 262.1", X1= "2015"},
-    };
-    
-    protected override void OnInitialized()
-    {
-        
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await Task.Delay(3000); // simulate the async operations
-        this.chartObj.RefreshAsync();
-        this.linechartObj.RefreshAsync();
-        this.barchartObj.RefreshAsync();
     }
  }
 
