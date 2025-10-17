@@ -1,6 +1,20 @@
 ﻿@page "/"
-@rendermode InteractiveServer
-@* @attribute [Authorize] *@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@* @attribute [Authorize]  *@
 
-<PageTitle>Home</PageTitle>
 
+
+@code {
+    private IEnumerable<System.Security.Claims.Claim> userClaims;
+    public string RoleClaimType { get; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        userClaims = user.Claims; // her ligger alle claims, inkl. roller og grupper
+        
+    }
+}

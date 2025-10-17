@@ -1,6 +1,7 @@
 using Blazored.Modal;
 using FMMI_Domain;
 using FMMI_Web.Components;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
@@ -59,6 +60,25 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQx
 //    db.Database.Migrate(); // 
 //}
 #endregion
+
+app.MapGet("/login", async (HttpContext context) =>
+{
+    var redirectUri = "/";
+    await context.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
+    {
+        RedirectUri = redirectUri
+    });
+});
+
+app.MapGet("/logout", async (HttpContext context) =>
+{
+    var callbackUrl = "/";
+    await context.SignOutAsync("Cookies");
+    await context.SignOutAsync("OpenIdConnect", new AuthenticationProperties
+    {
+        RedirectUri = callbackUrl
+    });
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
