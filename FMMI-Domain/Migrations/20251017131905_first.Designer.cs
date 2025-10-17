@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FMMI_Domain.Migrations
 {
     [DbContext(typeof(FMMIContext))]
-    [Migration("20251017063956_first")]
+    [Migration("20251017131905_first")]
     partial class first
     {
         /// <inheritdoc />
@@ -24,6 +24,21 @@ namespace FMMI_Domain.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("DeviceMqttTopic", b =>
+                {
+                    b.Property<int>("DevicesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MqttTopicsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("DevicesId", "MqttTopicsId");
+
+                    b.HasIndex("MqttTopicsId");
+
+                    b.ToTable("DeviceMqttTopic");
+                });
 
             modelBuilder.Entity("FMMI_Domain.Entities.Alarm", b =>
                 {
@@ -42,6 +57,9 @@ namespace FMMI_Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -55,6 +73,8 @@ namespace FMMI_Domain.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeviceId");
+
                     b.ToTable("Alarms");
 
                     b.HasData(
@@ -67,6 +87,32 @@ namespace FMMI_Domain.Migrations
                             Topics = "test",
                             Value = 0.0
                         });
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.AlarmLogs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlarmeID")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlarmeID");
+
+                    b.ToTable("AlarmLogs");
                 });
 
             modelBuilder.Entity("FMMI_Domain.Entities.Data", b =>
@@ -159,7 +205,7 @@ namespace FMMI_Domain.Migrations
                     b.Property<int>("DeviceTypeID")
                         .HasColumnType("integer");
 
-                    b.Property<int>("LocationID")
+                    b.Property<int>("MachineId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -168,11 +214,9 @@ namespace FMMI_Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AlarmID");
-
                     b.HasIndex("DeviceTypeID");
 
-                    b.HasIndex("LocationID");
+                    b.HasIndex("MachineId");
 
                     b.ToTable("Devices");
 
@@ -183,7 +227,7 @@ namespace FMMI_Domain.Migrations
                             AlarmID = 1,
                             ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610",
                             DeviceTypeID = 1,
-                            LocationID = 1,
+                            MachineId = 1,
                             Name = "TempSensor1"
                         },
                         new
@@ -192,7 +236,7 @@ namespace FMMI_Domain.Migrations
                             AlarmID = 1,
                             ConcurrencyStamp = "1b8ec008-2c2d-4077-9c1d-b3c224dc031f",
                             DeviceTypeID = 1,
-                            LocationID = 1,
+                            MachineId = 1,
                             Name = "HumiditySensor1"
                         },
                         new
@@ -201,7 +245,7 @@ namespace FMMI_Domain.Migrations
                             AlarmID = 1,
                             ConcurrencyStamp = "bb1ad2b2-b9a1-403c-8dda-2f807b34d357",
                             DeviceTypeID = 1,
-                            LocationID = 2,
+                            MachineId = 2,
                             Name = "TempSensor2"
                         },
                         new
@@ -210,7 +254,7 @@ namespace FMMI_Domain.Migrations
                             AlarmID = 1,
                             ConcurrencyStamp = "06360baf-4182-41b3-8194-28b23b08b727",
                             DeviceTypeID = 1,
-                            LocationID = 2,
+                            MachineId = 2,
                             Name = "HumiditySensor2"
                         });
                 });
@@ -245,7 +289,7 @@ namespace FMMI_Domain.Migrations
                         });
                 });
 
-            modelBuilder.Entity("FMMI_Domain.Entities.Location", b =>
+            modelBuilder.Entity("FMMI_Domain.Entities.Locations", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -267,7 +311,7 @@ namespace FMMI_Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("locations");
+                    b.ToTable("Locations");
 
                     b.HasData(
                         new
@@ -299,7 +343,7 @@ namespace FMMI_Domain.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("LocationID")
+                    b.Property<int>("LocationsId")
                         .HasColumnType("integer");
 
                     b.Property<string>("MachineName")
@@ -308,37 +352,151 @@ namespace FMMI_Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationID");
+                    b.HasIndex("LocationsId");
 
-                    b.ToTable("Machine");
+                    b.ToTable("Machines");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             ConcurrencyStamp = "5e9f19fd-2853-4679-9bce-d40d1de584c4",
-                            LocationID = 1,
+                            LocationsId = 1,
                             MachineName = "Machine A"
                         },
                         new
                         {
                             Id = 2,
                             ConcurrencyStamp = "828280ea-aed4-4d16-844c-0eb9fcee6457",
-                            LocationID = 2,
+                            LocationsId = 2,
                             MachineName = "Machine B"
                         });
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.MqttPubSub", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MqttPubSubs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "316f7ea3-5a43-406a-a916-1bb29c556220",
+                            Name = "Publish"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConcurrencyStamp = "40751cd1-1511-4bc6-a200-23a76e090b8a",
+                            Name = "Subcribe"
+                        });
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.MqttTopic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MqttPubSubId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MqttPubSubId");
+
+                    b.ToTable("MqttTopics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51",
+                            Description = "status",
+                            DeviceId = 1,
+                            MqttPubSubId = 2,
+                            Topic = "device/esp32/status"
+                        });
+                });
+
+            modelBuilder.Entity("DeviceMqttTopic", b =>
+                {
+                    b.HasOne("FMMI_Domain.Entities.Device", null)
+                        .WithMany()
+                        .HasForeignKey("DevicesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FMMI_Domain.Entities.MqttTopic", null)
+                        .WithMany()
+                        .HasForeignKey("MqttTopicsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.Alarm", b =>
+                {
+                    b.HasOne("FMMI_Domain.Entities.Device", null)
+                        .WithMany("Alarm")
+                        .HasForeignKey("DeviceId");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.AlarmLogs", b =>
+                {
+                    b.HasOne("FMMI_Domain.Entities.Alarm", "Alarmer")
+                        .WithMany("AlarmLogs")
+                        .HasForeignKey("AlarmeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alarmer");
                 });
 
             modelBuilder.Entity("FMMI_Domain.Entities.Data", b =>
                 {
                     b.HasOne("FMMI_Domain.Entities.DataType", "DataType")
-                        .WithMany()
+                        .WithMany("TelemetryData")
                         .HasForeignKey("DataTypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FMMI_Domain.Entities.Device", "Device")
-                        .WithMany()
+                        .WithMany("TelemetryData")
                         .HasForeignKey("DeviceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -350,40 +508,65 @@ namespace FMMI_Domain.Migrations
 
             modelBuilder.Entity("FMMI_Domain.Entities.Device", b =>
                 {
-                    b.HasOne("FMMI_Domain.Entities.Alarm", "Alarm")
-                        .WithMany()
-                        .HasForeignKey("AlarmID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FMMI_Domain.Entities.DeviceType", "DeviceType")
                         .WithMany()
                         .HasForeignKey("DeviceTypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FMMI_Domain.Entities.Location", "Location")
+                    b.HasOne("FMMI_Domain.Entities.Machine", "Machine")
                         .WithMany()
-                        .HasForeignKey("LocationID")
+                        .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Alarm");
-
                     b.Navigation("DeviceType");
 
-                    b.Navigation("Location");
+                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("FMMI_Domain.Entities.Machine", b =>
                 {
-                    b.HasOne("FMMI_Domain.Entities.Location", "Locations")
-                        .WithMany()
-                        .HasForeignKey("LocationID")
+                    b.HasOne("FMMI_Domain.Entities.Locations", "Locations")
+                        .WithMany("Machines")
+                        .HasForeignKey("LocationsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.MqttTopic", b =>
+                {
+                    b.HasOne("FMMI_Domain.Entities.MqttPubSub", "MqttPubSub")
+                        .WithMany()
+                        .HasForeignKey("MqttPubSubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MqttPubSub");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.Alarm", b =>
+                {
+                    b.Navigation("AlarmLogs");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.DataType", b =>
+                {
+                    b.Navigation("TelemetryData");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.Device", b =>
+                {
+                    b.Navigation("Alarm");
+
+                    b.Navigation("TelemetryData");
+                });
+
+            modelBuilder.Entity("FMMI_Domain.Entities.Locations", b =>
+                {
+                    b.Navigation("Machines");
                 });
 #pragma warning restore 612, 618
         }

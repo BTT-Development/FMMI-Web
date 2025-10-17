@@ -1,4 +1,7 @@
 ﻿using FMMI_Service.BackgroundWorker;
+using FMMI_Service.Services.DeviceServices;
+using FMMI_Service.Services.LocationServices;
+using FMMI_Service.Services.MachineServices;
 using FMMI_Service.Services.TelemetriService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +25,9 @@ namespace FMMI_Service
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<ITelemetriService, TelemetriService>();
-            
+            services.AddScoped<ILocationService, LocationService>();
+            services.AddScoped<IMachineService, MachineService>();
+            services.AddScoped<IDeviceService, DeviceService>();
 
 
             return services;
