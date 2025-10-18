@@ -17,6 +17,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddBlazoredModal();
 
+builder.AppendServiceConfiguration();
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
@@ -33,8 +34,6 @@ builder.Services.AddCascadingAuthenticationState();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<FMMIContext>(options =>
     options.UseNpgsql(connectionString));
-
-
 
 #region Sessions
 

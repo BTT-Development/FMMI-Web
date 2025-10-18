@@ -6,5 +6,6 @@ public class ShowDeviceDTO
     public string Name { get; set; }
     public string Type { get; set; }
     public bool online { get; set; }
+    public string MqttTopic { get; set; }
     public int MachineId { get; set; }
 }

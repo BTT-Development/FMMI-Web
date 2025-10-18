@@ -1,6 +1,5 @@
 ﻿using FMMI_Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
 
 namespace FMMI_Domain
 {
@@ -10,8 +9,11 @@ namespace FMMI_Domain
         public DbSet<DeviceType> DeviceTypes { get; set; }
         public DbSet<Data> TelemetriData { get; set; }
         public DbSet<Alarm> Alarms { get; set; }
-        public DbSet<Location> locations { get; set; }
+        public DbSet<Machine> Machines { get; set; }
+        public DbSet<Locations> Locations { get; set; }
         public DbSet<DataType> DataTypes { get; set; }
+        public DbSet<MqttTopic> MqttTopics { get; set; }
+        public DbSet<MqttPubSub> MqttPubSubs { get; set; }
 
         public FMMIContext(DbContextOptions<FMMIContext> options) : base(options) { }
         
@@ -26,6 +28,8 @@ namespace FMMI_Domain
             SeedDevice(modelBuilder);
             SeedMachine(modelBuilder);
             SeedAlarm(modelBuilder);
+            SeedMqttPubSub(modelBuilder);
+            SeedMqttTopics(modelBuilder);
         }
 
         private void SeedDataType(ModelBuilder modelbuilder)
@@ -45,27 +49,27 @@ namespace FMMI_Domain
 
         private void SeedLocation(ModelBuilder modelbuilder)
         {
-            modelbuilder.Entity<Location>().HasData(
-                new Location { Id = 1, Name = "Warehouse A", Description = "Placering af første maskine", ConcurrencyStamp = "5467f196-eee2-4316-9429-6e514072cb49" },
-                new Location { Id = 2, Name = "Warehouse B", Description = "Placering af anden maskine", ConcurrencyStamp = "dbac44d6-336e-4557-9d5c-7adbd1425173" }
+            modelbuilder.Entity<Locations>().HasData(
+                new Locations { Id = 1, Name = "Warehouse A", Description = "Placering af første maskine", ConcurrencyStamp = "5467f196-eee2-4316-9429-6e514072cb49" },
+                new Locations { Id = 2, Name = "Warehouse B", Description = "Placering af anden maskine", ConcurrencyStamp = "dbac44d6-336e-4557-9d5c-7adbd1425173" }
             );
         }
 
         private void SeedDevice(ModelBuilder modelbuilder)
         {
             modelbuilder.Entity<Device>().HasData(
-                new Device { Id = 1, Name = "TempSensor1", LocationID = 1, DeviceTypeID = 1, AlarmID = 1, ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610" },
-                new Device { Id = 2, Name = "HumiditySensor1", LocationID = 1, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "1b8ec008-2c2d-4077-9c1d-b3c224dc031f" },
-                new Device { Id = 3, Name = "TempSensor2", LocationID = 2, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "bb1ad2b2-b9a1-403c-8dda-2f807b34d357" },
-                new Device { Id = 4, Name = "HumiditySensor2", LocationID = 2, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "06360baf-4182-41b3-8194-28b23b08b727" }
+                new Device { Id = 1, Name = "TempSensor1", MachineId = 1, DeviceTypeID = 1, AlarmID = 1, ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610" },
+                new Device { Id = 2, Name = "HumiditySensor1", MachineId = 1, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "1b8ec008-2c2d-4077-9c1d-b3c224dc031f" },
+                new Device { Id = 3, Name = "TempSensor2", MachineId = 2, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "bb1ad2b2-b9a1-403c-8dda-2f807b34d357" },
+                new Device { Id = 4, Name = "HumiditySensor2", MachineId = 2, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "06360baf-4182-41b3-8194-28b23b08b727" }
             );
         }
 
         private void SeedMachine(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Machine>().HasData(
-                new Machine { Id = 1, MachineName = "Machine A", LocationID = 1 , ConcurrencyStamp = "5e9f19fd-2853-4679-9bce-d40d1de584c4" },
-                new Machine { Id = 2, MachineName = "Machine B", LocationID = 2, ConcurrencyStamp = "828280ea-aed4-4d16-844c-0eb9fcee6457" }
+                new Machine { Id = 1, MachineName = "Machine A", LocationsId = 1 , ConcurrencyStamp = "5e9f19fd-2853-4679-9bce-d40d1de584c4" },
+                new Machine { Id = 2, MachineName = "Machine B", LocationsId = 2, ConcurrencyStamp = "828280ea-aed4-4d16-844c-0eb9fcee6457" }
             );
         }
         
@@ -74,6 +78,19 @@ namespace FMMI_Domain
             modelbuilder.Entity<Alarm>().HasData(
                 new Alarm { Id = 1, Name = "Default Alarm", Description = "This is the default alarm.",Topics ="test", ConcurrencyStamp = "e4baec7a-02ac-4875-9c9f-97d7d4d0986b" }
             );
+        }
+        private void SeedMqttPubSub(ModelBuilder modelbuilder)
+        {
+            modelbuilder.Entity<MqttPubSub>().HasData(
+                new MqttPubSub { Id = 1, Name = "Publish", ConcurrencyStamp = "316f7ea3-5a43-406a-a916-1bb29c556220" },
+                new MqttPubSub { Id = 2, Name = "Subcribe", ConcurrencyStamp = "40751cd1-1511-4bc6-a200-23a76e090b8a" }
+                );
+        }
+        private void SeedMqttTopics(ModelBuilder modelbuilder)
+        {
+            modelbuilder.Entity<MqttTopic>().HasData(
+                new MqttTopic { Id = 1, Description = "status", Topic = "device/esp32/status", MqttPubSubId = 2, DeviceId = 1, ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51" }
+                );
         }
 
     }
