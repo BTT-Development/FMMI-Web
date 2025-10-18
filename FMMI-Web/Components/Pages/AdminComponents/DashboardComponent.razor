@@ -2,128 +2,88 @@
 @using FMMI_Service.Services.TelemetriService
 @inject ITelemetriService _service
 
-<h3>DashboardComponent</h3>
 
 <div class="content">
+    <div class="d-flex align-items-center input-group mb-3">
+        <div class="input-group-prepend">
+            <div class="input-group-text">
+                <input type="checkbox" value="1" aria-label="Checkbox for following text input"><a class="ml-2"> Realtids data </a>
+                <input type="checkbox" value="2" aria-label="Checkbox for following text input"><a class="ml-2"> Historik data </a>
+            </div>
+        </div>
+    </div>
     <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
         <DashboardLayoutPanels>
-            <DashboardLayoutPanel Id="Panel1" SizeX="3" SizeY="2">
-                <HeaderTemplate><div class='header text-center'> Temperatur </div></HeaderTemplate>
-                <ContentTemplate>
-                    <div style="height:100%; width:100%;">
-                        <SfChart ID="linechart" @ref="linechartObj">
-                            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime">
-                            </ChartPrimaryXAxis>
-                            <ChartSeriesCollection>
-                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
-                                    <ChartMarker Visible="true">
-                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
-                                        </ChartDataLabel>
-                                    </ChartMarker>
-                                </ChartSeries>
-                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
-                                    <ChartMarker Visible="true">
-                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
-                                        </ChartDataLabel>
-                                    </ChartMarker>
-                                </ChartSeries>
-                            </ChartSeriesCollection>
-                        </SfChart>
-                    </div>
-                </ContentTemplate>
-            </DashboardLayoutPanel>
-            <DashboardLayoutPanel Id="Panel2" SizeX="3" SizeY="2">
-                <HeaderTemplate><div class='header text-center'> Luftfugtighed </div></HeaderTemplate>
-                <ContentTemplate>
-                    <div style="height:100%; width:100%;">
-                        <SfChart ID="linechart" @ref="linechartObj">
-                            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime">
-                            </ChartPrimaryXAxis>
-                            <ChartSeriesCollection>
-                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
-                                    <ChartMarker Visible="true">
-                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
-                                        </ChartDataLabel>
-                                    </ChartMarker>
-                                </ChartSeries>
-                                <ChartSeries DataSource="@DataSource" XName="XValue" YName="YValue" Type="ChartSeriesType.Line">
-                                    <ChartMarker Visible="true">
-                                        <ChartDataLabel Visible="true" Position="Syncfusion.Blazor.Charts.LabelPosition.Top">
-                                        </ChartDataLabel>
-                                    </ChartMarker>
-                                </ChartSeries>
-                            </ChartSeriesCollection>
-                        </SfChart>
-                    </div>
-                </ContentTemplate>
-            </DashboardLayoutPanel>
-            <DashboardLayoutPanel Id="Panel3" SizeX="3" SizeY="2" Row=2 Column=3>
-                <HeaderTemplate><div class='header'> Sales Ratio in Countries </div></HeaderTemplate>
-                <ContentTemplate>
-                    <div style="height:100%; width:100%;">
-                        <SfChart ID="chart" @ref="barchartObj">
-                            <ChartPrimaryXAxis Title="Country" EnableTrim="true" ValueType="Syncfusion.Blazor.Charts.ValueType.Category">
-                                <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
-                            </ChartPrimaryXAxis>
-                            <ChartSeriesCollection>
-                                <ChartSeries DataSource="@DataSource" XName="X" YName="Y" Type="ChartSeriesType.Bar">
-                                </ChartSeries>
-                            </ChartSeriesCollection>
-                        </SfChart>
-                    </div>
+            <SfChart ID="tempChart" @ref="tempChartObj" Title="Temperatur (sidste 20 timer)">
+                <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
+                                   LabelFormat="HH:mm" IntervalType="IntervalType.Minutes" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
+                <ChartPrimaryYAxis Title="°C" />
+                <ChartSeriesCollection>
+                    <ChartSeries DataSource="@TemperaturData" XName="XValue" YName="YValue"
+                                 Type="ChartSeriesType.Line" Name="Temperatur" Width="2">
+                        <ChartMarker Visible="true" Height="6" Width="6"></ChartMarker>
+                        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+                    </ChartSeries>
+                </ChartSeriesCollection>
+            </SfChart>
 
-                </ContentTemplate>
-            </DashboardLayoutPanel>
-            <DashboardLayoutPanel Id="Panel4" SizeX=3 SizeY=2 Row=2 Column=0>
-                <HeaderTemplate><div class='header'> Sales Comparison in Products  </div></HeaderTemplate>
-                <ContentTemplate>
-                    <div style="height:100%; width:100%;">
-                        <SfChart ID="chart1" @ref="chartObj" Width="100%" Height="100%">
-                            <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
-                            <ChartSeriesCollection>
-                                <ChartSeries DataSource="@DataSource" Name="Editors" XName="X1" YName="YValue" Type="ChartSeriesType.StackingColumn">
-                                </ChartSeries>
-                                <ChartSeries DataSource="@DataSource" Name="Layouts" XName="X1" YName="YValue" Type="ChartSeriesType.StackingColumn">
-                                </ChartSeries>
-                                <ChartSeries DataSource="@DataSource" Name="Grids" XName="X1" YName="YValue" Type="ChartSeriesType.StackingColumn">
-                                </ChartSeries>
-                            </ChartSeriesCollection>
-                        </SfChart>
-                    </div>
-                </ContentTemplate>
-            </DashboardLayoutPanel>
+            <SfChart ID="humidityChart" @ref="humidityChartObj" Title="Luftfugtighed (sidste 20 timer)">
+                <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
+                                   LabelFormat="HH:mm" IntervalType="IntervalType.Minutes" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
+                <ChartPrimaryYAxis Title="%" />
+                <ChartSeriesCollection>
+                    <ChartSeries DataSource="@FugtighedData" XName="XValue" YName="YValue"
+                                 Type="ChartSeriesType.Line" Name="Luftfugtighed" Width="2">
+                        <ChartMarker Visible="true" Height="6" Width="6"></ChartMarker>
+                        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+                    </ChartSeries>
+                </ChartSeriesCollection>
+            </SfChart>
         </DashboardLayoutPanels>
     </SfDashboardLayout>
 </div>
 
 @code
 {
-
     public List<Data> telemetriData = new List<Data>();
     SfChart chartObj;
     SfChart barchartObj;
     SfChart linechartObj;
+    SfChart tempChartObj;
+    SfChart humidityChartObj;
     private object[] Value = new object[] { new DateTime(2025, 01, 01), new DateTime(2025, 10, 01) };
     
-    public List<ChartData> DataSource = new List<ChartData>();
-
+    public List<ChartData> TemperaturData = new();
+    public List<ChartData> FugtighedData = new();
+    
     protected async  override Task OnInitializedAsync()
     {
         telemetriData = await _service.GetDataAsync();
-        DataSource = telemetriData.Select(td => new ChartData
-        {
-            XValue = td.Dates,
-            YValue = td.Value,
-            X = td.DataType.TypeName,
-            Y = td.Value,
-            X1 = td.Dates.Year.ToString()
-        }).ToList();
+
+        var now = DateTime.Now;
+        var twelveHoursAgo = now.AddHours(-12);
+
+        // Temperatur
+        var tempLast12h = telemetriData
+            .Where(td => td.DataType.TypeName == "Temperature" && td.Dates >= twelveHoursAgo)
+            .GroupBy(td => new DateTime(td.Dates.Year, td.Dates.Month, td.Dates.Day, td.Dates.Hour, td.Dates.Minute / 5 * 5, 0)) // gennemsnit pr. time
+            .Select(g => new ChartData { XValue = g.Key, YValue = g.Average(x => x.Value) })
+            .OrderBy(g => g.XValue)
+            .ToList();
+
+        // Luftfugtighed
+        var humidityLast12h = telemetriData
+            .Where(td => td.DataType.TypeName == "Humidity" && td.Dates >= twelveHoursAgo)
+            .GroupBy(td => new DateTime(td.Dates.Year, td.Dates.Month, td.Dates.Day, td.Dates.Hour, td.Dates.Minute / 5 * 5, 0))
+            .Select(g => new ChartData { XValue = g.Key, YValue = g.Average(x => x.Value) })
+            .OrderBy(g => g.XValue)
+            .ToList();
+
+        TemperaturData = tempLast12h;
+        FugtighedData = humidityLast12h;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        
-    }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { }
 
 
     public class ChartData
