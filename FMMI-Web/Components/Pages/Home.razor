@@ -1,9 +1,10 @@
 ﻿@page "/"
+@using FMMI_Web.Components.Pages.AdminComponents
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @* @attribute [Authorize]  *@
 
-
+<DashboardComponent/>
 
 @code {
     private IEnumerable<System.Security.Claims.Claim> userClaims;
