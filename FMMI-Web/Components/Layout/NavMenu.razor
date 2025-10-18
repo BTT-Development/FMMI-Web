@@ -8,9 +8,13 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <NavLink class="dropdown-item" href="/DivicesOverviewPage">
-            <i class="fa-solid fa-calendar-days fa-fw text-white"></i> Devices
+        <NavLink class="ms-2" href="/DivicesOverviewPage">
+            <div class="text-white">Devices</div>
         </NavLink>
+        <NavLink class="ms-2" href="/AlarmOverview">
+            <i class="bi bi-bell-fill text-danger pointer"></i>
+        </NavLink>
+
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                  <AuthorizeView>

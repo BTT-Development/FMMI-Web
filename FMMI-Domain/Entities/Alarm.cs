@@ -10,4 +10,6 @@ public class Alarm : BaseIdEntity
     public string Topics { get; set; }
 
     public List<AlarmLogs> AlarmLogs { get; set; }
+    public int DeviceId { get; set; }
+    public Device Device { get; set; }
 }
