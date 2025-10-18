@@ -9,6 +9,7 @@ namespace FMMI_Domain
         public DbSet<DeviceType> DeviceTypes { get; set; }
         public DbSet<Data> TelemetriData { get; set; }
         public DbSet<Alarm> Alarms { get; set; }
+        public DbSet<AlarmLogs> AlarmLogs { get; set; }
         public DbSet<Machine> Machines { get; set; }
         public DbSet<Locations> Locations { get; set; }
         public DbSet<DataType> DataTypes { get; set; }

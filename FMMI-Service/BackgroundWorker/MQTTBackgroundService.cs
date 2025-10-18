@@ -20,6 +20,7 @@ public class MQTTBackgroundService : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
 
     private static readonly MqttTopicTemplate _historyDataTemp = new("device/+/data/#");
+    private static readonly MqttTopicTemplate _AlarmTopicTemp = new("device/+/alarm/#");
 
     private readonly MqttClientOptions _mqttClientOptions;
 
@@ -97,23 +98,47 @@ public class MQTTBackgroundService : BackgroundService
 
             if (!string.IsNullOrEmpty(payload))
             {
-                Data data = JsonSerializer.Deserialize<Data>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
-                if (data != null)
+                if (topic.Contains("data"))
                 {
-                    await _dataCollection.InsertOneAsync(data);
-                    try
+                    Data data = JsonSerializer.Deserialize<Data>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    if (data != null)
                     {
-                        DateTime parsedDate = DateTime.ParseExact(data.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                        DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
-                        data.Dates = utcDate;
-                        await dbContext.TelemetriData.AddAsync(data);
-                        int rows = await dbContext.SaveChangesAsync();
-                        if (rows > 0)
-                            Console.WriteLine("Saved data on portgresql");
+                        //await _dataCollection.InsertOneAsync(data);
+                        try
+                        {
+                            DateTime parsedDate = DateTime.ParseExact(data.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                            DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                            data.Dates = utcDate;
+                            await dbContext.TelemetriData.AddAsync(data);
+                            int rows = await dbContext.SaveChangesAsync();
+                            if (rows > 0)
+                                Console.WriteLine("Saved data on portgresql");
+                        }
+                        finally
+                        {
+                            scope.Dispose();
+                        }
                     }
-                    finally
+                }
+                else if(topic.Contains("alarm"))
+                {
+                    AlarmLogs alarmlog = JsonSerializer.Deserialize<AlarmLogs>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    if (alarmlog is not null)
                     {
-                        scope.Dispose();
+                        try
+                        {
+                            DateTime parsedDate = DateTime.ParseExact(alarmlog.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                            DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                            alarmlog.Dates = utcDate;
+                            await dbContext.AlarmLogs.AddAsync(alarmlog);
+                            int rows = await dbContext.SaveChangesAsync();
+                            if (rows > 0)
+                                Console.WriteLine("Saved data on portgresql");
+                         }
+                        finally
+                        {
+                            scope.Dispose();
+                        }
                     }
                 }
             }
@@ -136,6 +161,7 @@ public class MQTTBackgroundService : BackgroundService
 
         MqttClientSubscribeOptions mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
             .WithTopicFilter(f => f.WithTopicTemplate(_historyDataTemp).WithAtLeastOnceQoS())
+             .WithTopicFilter(f => f.WithTopicTemplate(_AlarmTopicTemp).WithAtLeastOnceQoS())
             .Build();
 
         await _mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);

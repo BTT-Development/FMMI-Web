@@ -5,8 +5,12 @@ namespace FMMI_Domain.Entities;
 
 public class AlarmLogs : BaseIdEntity
 {
-    public DateTime Date { get; set; }
+    [NotMapped]
+    public string Date { get; set; }
+    public DateTime Dates { get; set; }
 
     [ForeignKey("AlarmeID")]
     public Alarm Alarmer { get; set; }
+
+    public bool newAlarm { get; set; }
 }
