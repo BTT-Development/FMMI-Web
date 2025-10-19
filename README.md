@@ -24,24 +24,38 @@ FMMI ( Forsvarsministeriets Materiel- og Indkøbsstyrelse ) - Krudt og Kugler
 
 ## Intro
 
-Dette hjemmeside er et monitorering interface som skal holde status på sensor i et fabrik. Samt skal give mulighed for diverse funktioner som: administration af enheder, alarmer og filtrering af data. 
-Ved at placere IoT-enheder forskellige strategiske steder I fabrikken vil dataindsamling som:
+This website is a monitoring interface designed to track the status of sensors in a factory. It also provides various functionalities such as device management, alarm handling, and data filtering.
+By placing IoT devices at strategic locations throughout the factory, data can be collected from sources such as:
 -	Telemetri
 -	Sikkerhedskameraer
 -	Sensorer
 
 <img width="969" height="617" alt="image" src="https://github.com/user-attachments/assets/82c6aacd-81a7-4e34-aa4d-0cc9601138f7" />
 
-Arkitektur diagram leverer et bedre overblik over systemet. Det er en eller flere sensorer som ved brug af MQTT protokollen "publish/subscribe" sender data igennem en broker som er HiveMQ i dette tilfæld.
-Data bliver opbevar i to forskellige databaser MongoDB og PostgreSQL, da MongoDB bliver brugt som en lake, og derfor alt data bliver opbevare data uden at blive behandlet, men derudover det behandlede data som er tilpasse til monitorering skal opbevares i PostgreSQL.
+The architecture diagram provides a clearer overview of the system. One or more sensors use the MQTT “publish/subscribe” protocol to send data through a broker - in this case, HiveMQ.
+The data is stored in two different databases: MongoDB and PostgreSQL. MongoDB is used as a data lake, where all raw data is stored without processing. Meanwhile, the processed data, which is tailored for monitoring purposes, is stored in PostgreSQL.
 
 ## Instructions
 
-1. For bygning og konfiguration af sensor: [Se her](https://github.com/BTT-Development/FmmiIot)
-2. Install the required libraries by following their respective installation instructions.
-3. Open Visual Studio Code.
+### Sensor Intructions
+1. For the construction and configuration of the sensor: [Se her](https://github.com/BTT-Development/FmmiIot)
+
+### Web Intructions
+1. Install the required libraries by following their respective installation instructions.
+2. Open Visual Studio Code.
+3. The following libreries are required for the system.
 
 ### Libraries
+
+#### UI
+
+- Blazored.Modal                          v7.3.1
+- Blazored.Toast                          v4.2.1
+- Syncfusion.Blazor.Calendars             v31.1.23
+- Syncfusion.Blazor.Charts                v31.1.23
+- Syncfusion.Blazor.Layouts               v31.1.23
+- Syncfusion.Blazor.Navigations           v31.1.23
+- Syncfusion.Blazor.Themes                v31.1.23
 
 
 ### Structure
