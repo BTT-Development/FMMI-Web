@@ -30,7 +30,7 @@ By placing IoT devices at strategic locations throughout the factory, data can b
 -	Sikkerhedskameraer
 -	Sensorer
 
-<img width="969" height="617" alt="image" src="https://github.com/user-attachments/assets/82c6aacd-81a7-4e34-aa4d-0cc9601138f7" />
+<img width="500" height="599" alt="image" src="https://github.com/user-attachments/assets/82c6aacd-81a7-4e34-aa4d-0cc9601138f7" />
 
 The architecture diagram provides a clearer overview of the system. One or more sensors use the MQTT “publish/subscribe” protocol to send data through a broker - in this case, HiveMQ.
 The data is stored in two different databases: MongoDB and PostgreSQL. MongoDB is used as a data lake, where all raw data is stored without processing. Meanwhile, the processed data, which is tailored for monitoring purposes, is stored in PostgreSQL.
