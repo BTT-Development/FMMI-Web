@@ -49,13 +49,15 @@ The data is stored in two different databases: MongoDB and PostgreSQL. MongoDB i
 
 #### UI
 
-- Blazored.Modal                          v7.3.1
-- Blazored.Toast                          v4.2.1
-- Syncfusion.Blazor.Calendars             v31.1.23
-- Syncfusion.Blazor.Charts                v31.1.23
-- Syncfusion.Blazor.Layouts               v31.1.23
-- Syncfusion.Blazor.Navigations           v31.1.23
-- Syncfusion.Blazor.Themes                v31.1.23
+| Name                   | Version   |
+|------------------------|-----------|
+| Blazored.Modal             | v7.3.1  |
+| Blazored.Toast   |  v4.2.1  |
+| Syncfusion.Blazor.Calendars  | v31.1.23 |
+| Syncfusion.Blazor.Charts  | v31.1.23  |
+| Syncfusion.Blazor.Layouts   | v31.1.23  |
+| Syncfusion.Blazor.Navigations  | v31.1.23  |
+| Syncfusion.Blazor.Themes   | v31.1.23  |
 
 
 ### Structure
