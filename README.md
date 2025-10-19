@@ -58,33 +58,38 @@ The data is stored in two different databases: MongoDB and PostgreSQL. MongoDB i
 | Syncfusion.Blazor.Layouts   | v31.1.23  |
 | Syncfusion.Blazor.Navigations  | v31.1.23  |
 | Syncfusion.Blazor.Themes   | v31.1.23  |
+| Microsoft.Identity.Web  | v3.14.1  |
+| Microsoft.Identity.Web.UI   | v3.14.1  |
 
 #### Domain layer
 
 | Name                   | Version   |
 |------------------------|-----------|
-| Microsoft.EntityFrameworkCore | 9.0.9  |
-| Microsoft.EntityFrameworkCore.Design |  9.0.9  |
-| Microsoft.EntityFrameworkCore.SqlServer | 9.0.9 |
-| Microsoft.EntityFrameworkCore.Tools  | 9.0.9  |
-| Npgsql.EntityFrameworkCore.PostgreSQL | 9.0.4  |
+| Microsoft.EntityFrameworkCore | v9.0.9  |
+| Microsoft.EntityFrameworkCore.Design |  v9.0.9  |
+| Microsoft.EntityFrameworkCore.SqlServer | v9.0.9 |
+| Microsoft.EntityFrameworkCore.Tools  | v9.0.9  |
+| Npgsql.EntityFrameworkCore.PostgreSQL | v9.0.4  |
 
 
-### Service layer
+#### Service layer
 
 | Name                   | Version   |
 |------------------------|-----------|
-| Microsoft.AspNetCore.Authentication.OpenIdConnect | 9.0.9  |
-| Microsoft.Extensions.Hosting.Abstactions |  9.0.9  |
-| MongoDB.Driver | 3.5.0 |
-| MQTTnet  | 4.3.7.1207  |
-| MQTTnet.Extensions.TopicTemplate | 4.3.7.1207  |
+| Microsoft.AspNetCore.Authentication.OpenIdConnect | v9.0.9  |
+| Microsoft.Extensions.Hosting.Abstactions |  v9.0.9  |
+| MongoDB.Driver | v3.5.0 |
+| MQTTnet  | v4.3.7.1207  |
+| MQTTnet.Extensions.TopicTemplate | v4.3.7.1207  |
 
 ### Structure
 
   #### 
-    
-  #### 
+    FMMI-Domain - Database logic
+    FMMI-Service - Function logic
+    FMMI-WEB - UI
+    FMMI-Worker - BackgroundService MQTT
+  
 
 ## Changelog
 [Github](https://github.com/BTT-Development/FMMI-Web/branches) - The full project is ready for you to try it.
