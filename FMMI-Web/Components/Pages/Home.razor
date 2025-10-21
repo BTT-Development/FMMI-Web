@@ -2,10 +2,10 @@
 @using FMMI_Web.Components.Pages.AdminComponents
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@* @attribute [Authorize]  *@
+ @* @attribute [Authorize] *@
 
-@* <DashboardComponent/>
- *@
+<DashboardComponent/>
+ 
 @code {
     private IEnumerable<System.Security.Claims.Claim> userClaims;
     public string RoleClaimType { get; }
@@ -16,6 +16,7 @@
         var user = authState.User;
 
         userClaims = user.Claims; // her ligger alle claims, inkl. roller og grupper
-        
+        bool isTekniker = user.IsInRole("Tekniker");
+        bool isSikkerhed = user.IsInRole("Sikkerhedspersonale");
     }
 }
