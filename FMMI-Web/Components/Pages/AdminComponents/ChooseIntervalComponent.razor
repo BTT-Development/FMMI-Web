@@ -1,0 +1,36 @@
+﻿<div class="d-flex align-items-center input-group mb-3">
+    <div class="input-group-prepend">
+        <div class="input-group-text">
+            <input type="radio" id="realtime" name="mode" value="realtime"
+                   checked="@isRealtimeMode"
+                   @onchange='() => SetMode("realtime")' />
+            <label for="realtime" class="ml-2 mr-3">Realtids data</label>
+
+            <input type="radio" id="history" name="mode" value="history"
+                   checked="@(!isRealtimeMode)"
+                   @onchange='() => SetMode("history")' />
+            <label for="history" class="ml-2">Historik data</label>
+        </div>
+    </div>
+</div>
+
+<h1>
+    Valgt tilstand: @(isRealtimeMode ? "Realtids data" : "Historik data")
+</h1>
+@code {
+    private bool isRealtimeMode = true;
+
+    [Parameter]
+    public EventCallback<bool> OnModeChanged { get; set; }
+
+    private async void SetMode(string mode)
+    {
+        isRealtimeMode = mode == "realtime";
+
+        // Sender ændringen til parent
+        await OnModeChanged.InvokeAsync(isRealtimeMode);
+
+        StateHasChanged();
+    }
+
+}
