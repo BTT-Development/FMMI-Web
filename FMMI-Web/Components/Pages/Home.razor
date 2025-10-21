@@ -4,8 +4,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @* @attribute [Authorize]  *@
 
-<DashboardComponent/>
-
+@* <DashboardComponent/>
+ *@
 @code {
     private IEnumerable<System.Security.Claims.Claim> userClaims;
     public string RoleClaimType { get; }

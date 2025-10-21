@@ -1,4 +1,5 @@
 ﻿using FMMI_Service.BackgroundWorker;
+using FMMI_Service.Services.AlarmServices;
 using FMMI_Service.Services.DeviceServices;
 using FMMI_Service.Services.LocationServices;
 using FMMI_Service.Services.MachineServices;
@@ -28,6 +29,7 @@ namespace FMMI_Service
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IMachineService, MachineService>();
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IAlarmLogService, AlarmLogService>();
 
 
             return services;
