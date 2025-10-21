@@ -1,9 +1,13 @@
-﻿
+﻿@using FMMI_Service.DTO.Alarm
+
 
 <div  class="d-flex align-items-center border rounded m-2 p-2 bg-grey-one border-secondary-subtle fs-c bg-body-secondary">
-    <div class="w-25"></div>
+    <div class="w-25">@alarmLogDTO.DeviceName</div>
 
-    <div class="ms-2"></div>
+    <div class="ms-2">@alarmLogDTO.Description</div>
+    <div class="ms-2">@alarmLogDTO.Date</div>
+    <div class="ms-2">@alarmLogDTO.Location</div>
+    <div class="ms-2">@alarmLogDTO.Machine</div>
 
     <div class="d-flex justify-items-center ms-auto">
         <i class="bi bi-wifi-2 text-success"></i>
@@ -12,5 +16,18 @@
 </div>
 
 @code {
-
+    private ShowAlarmLogDTO alarmLogDTO = new()
+    {
+        Id = 1,
+         DeviceName = "eps32",
+          Description = "Fejl",
+           Date = DateTime.Now,
+            Location = "her",
+            Machine = "nummer2 "
+            
+    };
+    protected override void OnInitialized()
+    {
+        
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace FMMI_Domain.Entities;
 
-public class Device : BaseIdEntity
+public class Device : Concurrency
 {
     public string Name { get; set; }
 
@@ -13,7 +13,7 @@ public class Device : BaseIdEntity
     public int DeviceTypeID { get; set; }
     public DeviceType DeviceType { get; set; }
 
-    public int AlarmID { get; set; }
+    public int AlarmId { get; set; }
     public List<Alarm>? Alarm { get; set; }
 
     public List<Data>? TelemetryData { get; set; }

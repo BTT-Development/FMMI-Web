@@ -3,7 +3,7 @@ using Microsoft.Identity.Client.TelemetryCore.TelemetryClient;
 
 namespace FMMI_Domain.Entities;
 
-public class DataType : BaseIdEntity
+public class DataType : Concurrency
 {
     public string TypeName { get; set; }
     public string Unit { get; set; }

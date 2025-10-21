@@ -2,7 +2,7 @@
 
 namespace FMMI_Domain.Entities
 {
-    public class Locations : BaseIdEntity
+    public class Locations : Concurrency
     {
         public string? Name { get; set; }
         public string Description { get; set; }

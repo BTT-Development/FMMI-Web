@@ -23,14 +23,14 @@ namespace FMMI_Domain
         {
             base.OnModelCreating(modelBuilder);
 
+            SeedMqttPubSub(modelBuilder);
+            SeedMqttTopics(modelBuilder);
             SeedDataType(modelBuilder);
             SeedDeviceType(modelBuilder);
             SeedLocation(modelBuilder);
-            SeedDevice(modelBuilder);
             SeedMachine(modelBuilder);
+            SeedDevice(modelBuilder);
             SeedAlarm(modelBuilder);
-            SeedMqttPubSub(modelBuilder);
-            SeedMqttTopics(modelBuilder);
         }
 
         private void SeedDataType(ModelBuilder modelbuilder)
@@ -59,10 +59,10 @@ namespace FMMI_Domain
         private void SeedDevice(ModelBuilder modelbuilder)
         {
             modelbuilder.Entity<Device>().HasData(
-                new Device { Id = 1, Name = "TempSensor1", MachineId = 1, DeviceTypeID = 1, AlarmID = 1, ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610" },
-                new Device { Id = 2, Name = "HumiditySensor1", MachineId = 1, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "1b8ec008-2c2d-4077-9c1d-b3c224dc031f" },
-                new Device { Id = 3, Name = "TempSensor2", MachineId = 2, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "bb1ad2b2-b9a1-403c-8dda-2f807b34d357" },
-                new Device { Id = 4, Name = "HumiditySensor2", MachineId = 2, DeviceTypeID = 1, AlarmID = 1 , ConcurrencyStamp = "06360baf-4182-41b3-8194-28b23b08b727" }
+                new Device { Id = 1, Name = "TempSensor1", MachineId = 1, DeviceTypeID = 1, AlarmId = 1, ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610"  },
+                new Device { Id = 2, Name = "HumiditySensor1", MachineId = 1, DeviceTypeID = 1, AlarmId = 1 , ConcurrencyStamp = "1b8ec008-2c2d-4077-9c1d-b3c224dc031f" },
+                new Device { Id = 3, Name = "TempSensor2", MachineId = 2, DeviceTypeID = 1, AlarmId = 1 , ConcurrencyStamp = "bb1ad2b2-b9a1-403c-8dda-2f807b34d357" },
+                new Device { Id = 4, Name = "HumiditySensor2", MachineId = 2, DeviceTypeID = 1, AlarmId = 1 , ConcurrencyStamp = "06360baf-4182-41b3-8194-28b23b08b727" }
             );
         }
 
@@ -77,20 +77,22 @@ namespace FMMI_Domain
         private void SeedAlarm(ModelBuilder modelbuilder)
         {
             modelbuilder.Entity<Alarm>().HasData(
-                new Alarm { Id = 1, Name = "Default Alarm", Description = "This is the default alarm.",Topics ="test", ConcurrencyStamp = "e4baec7a-02ac-4875-9c9f-97d7d4d0986b" }
+                new Alarm { Id = 1, Name = "Status", Description = "This is for connection", ConcurrencyStamp = "e4baec7a-02ac-4875-9c9f-97d7d4d0986b", DeviceId = 1 , MqttTopicId = 1},
+                new Alarm { Id = 2, Name = "Dht11", Description = "This is for error on dht11 sensor", ConcurrencyStamp = "e4baec7a-02ac-4875-9c9f-97d7d4d0986c", DeviceId = 1, MqttTopicId = 2 }
             );
         }
         private void SeedMqttPubSub(ModelBuilder modelbuilder)
         {
             modelbuilder.Entity<MqttPubSub>().HasData(
-                new MqttPubSub { Id = 1, Name = "Publish", ConcurrencyStamp = "316f7ea3-5a43-406a-a916-1bb29c556220" },
-                new MqttPubSub { Id = 2, Name = "Subcribe", ConcurrencyStamp = "40751cd1-1511-4bc6-a200-23a76e090b8a" }
+                new MqttPubSub { Id = 1, Name = "Publish" },
+                new MqttPubSub { Id = 2, Name = "Subcribe" }
                 );
         }
         private void SeedMqttTopics(ModelBuilder modelbuilder)
         {
             modelbuilder.Entity<MqttTopic>().HasData(
-                new MqttTopic { Id = 1, Description = "status", Topic = "device/esp32/status", MqttPubSubId = 2, DeviceId = 1, ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51" }
+                new MqttTopic { Id = 1, Description = "status", Topic = "device/esp32/alarm/status", MqttPubSubId = 2, ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51" },
+                new MqttTopic { Id = 2, Description = "Dht11", Topic = "device/esp32/alarm/dht11", MqttPubSubId = 2, ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5f7c51" }
                 );
         }
 

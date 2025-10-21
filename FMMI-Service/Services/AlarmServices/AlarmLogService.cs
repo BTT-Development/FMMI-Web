@@ -14,9 +14,10 @@ internal class AlarmLogService : BaseService<AlarmLogs>
     {
        _context = context; 
     }
-    public Result<List<AlarmLogs>> GetAllActiveAlarmlogs()
+    public Result<List<ShowAlarmLogDTO>> GetAllActiveAlarmlogs()
     {
         List<ShowAlarmLogDTO> alarmlogs = new();
-
+        return Result<List<ShowAlarmLogDTO>>.Succes(alarmlogs, "data fundet.");
     } 
+     
 }

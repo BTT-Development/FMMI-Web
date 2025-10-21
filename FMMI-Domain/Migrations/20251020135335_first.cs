@@ -64,8 +64,7 @@ namespace FMMI_Domain.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -102,7 +101,8 @@ namespace FMMI_Domain.Migrations
                     Topic = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     MqttPubSubId = table.Column<int>(type: "integer", nullable: false),
-                    DeviceId = table.Column<int>(type: "integer", nullable: false),
+                    DeviceId = table.Column<int>(type: "integer", nullable: true),
+                    AlarmId = table.Column<int>(type: "integer", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -125,7 +125,7 @@ namespace FMMI_Domain.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     MachineId = table.Column<int>(type: "integer", nullable: false),
                     DeviceTypeID = table.Column<int>(type: "integer", nullable: false),
-                    AlarmID = table.Column<int>(type: "integer", nullable: false),
+                    AlarmId = table.Column<int>(type: "integer", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -152,10 +152,10 @@ namespace FMMI_Domain.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Value = table.Column<double>(type: "double precision", nullable: false),
+                    Value = table.Column<double>(type: "double precision", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    Topics = table.Column<string>(type: "text", nullable: false),
-                    DeviceId = table.Column<int>(type: "integer", nullable: true),
+                    MqttTopicId = table.Column<int>(type: "integer", nullable: true),
+                    DeviceId = table.Column<int>(type: "integer", nullable: false),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -165,6 +165,12 @@ namespace FMMI_Domain.Migrations
                         name: "FK_Alarms_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Alarms_MqttTopics_MqttTopicId",
+                        column: x => x.MqttTopicId,
+                        principalTable: "MqttTopics",
                         principalColumn: "Id");
                 });
 
@@ -226,25 +232,20 @@ namespace FMMI_Domain.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    AlarmeID = table.Column<int>(type: "integer", nullable: false),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: false)
+                    Dates = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    AlarmId = table.Column<int>(type: "integer", nullable: false),
+                    NewAlarm = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AlarmLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AlarmLogs_Alarms_AlarmeID",
-                        column: x => x.AlarmeID,
+                        name: "FK_AlarmLogs_Alarms_AlarmId",
+                        column: x => x.AlarmId,
                         principalTable: "Alarms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Alarms",
-                columns: new[] { "Id", "ConcurrencyStamp", "Description", "DeviceId", "Name", "Topics", "Value" },
-                values: new object[] { 1, "e4baec7a-02ac-4875-9c9f-97d7d4d0986b", "This is the default alarm.", null, "Default Alarm", "test", 0.0 });
 
             migrationBuilder.InsertData(
                 table: "DataTypes",
@@ -271,11 +272,11 @@ namespace FMMI_Domain.Migrations
 
             migrationBuilder.InsertData(
                 table: "MqttPubSubs",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name" },
+                columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "316f7ea3-5a43-406a-a916-1bb29c556220", "Publish" },
-                    { 2, "40751cd1-1511-4bc6-a200-23a76e090b8a", "Subcribe" }
+                    { 1, "Publish" },
+                    { 2, "Subcribe" }
                 });
 
             migrationBuilder.InsertData(
@@ -289,12 +290,16 @@ namespace FMMI_Domain.Migrations
 
             migrationBuilder.InsertData(
                 table: "MqttTopics",
-                columns: new[] { "Id", "ConcurrencyStamp", "Description", "DeviceId", "MqttPubSubId", "Topic" },
-                values: new object[] { 1, "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51", "status", 1, 2, "device/esp32/status" });
+                columns: new[] { "Id", "AlarmId", "ConcurrencyStamp", "Description", "DeviceId", "MqttPubSubId", "Topic" },
+                values: new object[,]
+                {
+                    { 1, null, "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51", "status", null, 2, "device/esp32/alarm/status" },
+                    { 2, null, "03e9f1b2-e9c8-469c-91fa-00be8c5f7c51", "Dht11", null, 2, "device/esp32/alarm/dht11" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Devices",
-                columns: new[] { "Id", "AlarmID", "ConcurrencyStamp", "DeviceTypeID", "MachineId", "Name" },
+                columns: new[] { "Id", "AlarmId", "ConcurrencyStamp", "DeviceTypeID", "MachineId", "Name" },
                 values: new object[,]
                 {
                     { 1, 1, "283dbf03-6f12-47e6-acf4-970f87dda610", 1, 1, "TempSensor1" },
@@ -303,15 +308,29 @@ namespace FMMI_Domain.Migrations
                     { 4, 1, "06360baf-4182-41b3-8194-28b23b08b727", 1, 2, "HumiditySensor2" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Alarms",
+                columns: new[] { "Id", "ConcurrencyStamp", "Description", "DeviceId", "MqttTopicId", "Name", "Value" },
+                values: new object[,]
+                {
+                    { 1, "e4baec7a-02ac-4875-9c9f-97d7d4d0986b", "This is for connection", 1, 1, "Status", null },
+                    { 2, "e4baec7a-02ac-4875-9c9f-97d7d4d0986c", "This is for error on dht11 sensor", 1, 2, "Dht11", null }
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_AlarmLogs_AlarmeID",
+                name: "IX_AlarmLogs_AlarmId",
                 table: "AlarmLogs",
-                column: "AlarmeID");
+                column: "AlarmId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Alarms_DeviceId",
                 table: "Alarms",
                 column: "DeviceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Alarms_MqttTopicId",
+                table: "Alarms",
+                column: "MqttTopicId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeviceMqttTopic_MqttTopicsId",
@@ -365,22 +384,22 @@ namespace FMMI_Domain.Migrations
                 name: "Alarms");
 
             migrationBuilder.DropTable(
-                name: "MqttTopics");
-
-            migrationBuilder.DropTable(
                 name: "DataTypes");
 
             migrationBuilder.DropTable(
                 name: "Devices");
 
             migrationBuilder.DropTable(
-                name: "MqttPubSubs");
+                name: "MqttTopics");
 
             migrationBuilder.DropTable(
                 name: "DeviceTypes");
 
             migrationBuilder.DropTable(
                 name: "Machines");
+
+            migrationBuilder.DropTable(
+                name: "MqttPubSubs");
 
             migrationBuilder.DropTable(
                 name: "Locations");
