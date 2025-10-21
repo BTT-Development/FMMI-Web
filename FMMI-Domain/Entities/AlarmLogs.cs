@@ -9,8 +9,8 @@ public class AlarmLogs : BaseIdEntity
     public string Date { get; set; }
     public DateTime Dates { get; set; }
 
-    [ForeignKey("AlarmeID")]
+    public int AlarmId { get; set; }
     public Alarm Alarmer { get; set; }
 
-    public bool newAlarm { get; set; }
+    public bool NewAlarm { get; set; }
 }

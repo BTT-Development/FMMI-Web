@@ -1,5 +1,7 @@
-﻿@implements IDisposable
+﻿
+@implements IDisposable
 @inject NavigationManager NavigationManager
+@inject IAlarmLogService _alarmLogService
 
 <nav class="navbar navbar-expand-lg py-0 navbarColor">
     <div class="container-fluid">
@@ -11,9 +13,18 @@
         <NavLink class="ms-2" href="/DivicesOverviewPage">
             <div class="text-white">Devices</div>
         </NavLink>
-        <NavLink class="ms-2" href="/AlarmOverview">
-            <i class="bi bi-bell-fill text-danger pointer"></i>
-        </NavLink>
+        @if (_alarmCount > 0)
+        {  
+            <NavLink class="ms-2" href="/AlarmOverview">
+                <i class="bi bi-bell-fill text-danger pointer position-relative">
+
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                   @_alarmCount
+                </span>
+                </i>
+
+            </NavLink>
+        }
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
@@ -51,10 +62,18 @@
 @code {
     private string? currentUrl;
 
-    protected override void OnInitialized()
+    private int _alarmCount;
+
+    protected override async Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+        Result<int> countResult = await _alarmLogService.GetCountOnActiceAlarmlogs();
+        if (countResult.IsSucces)
+        {
+            _alarmCount = countResult.Data;
+        }
+        StateHasChanged();
     }
     
   

@@ -1,5 +1,6 @@
 ﻿using FMMI_Domain;
 using FMMI_Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
@@ -112,7 +113,7 @@ public class MQTTBackgroundService : BackgroundService
                             await dbContext.TelemetriData.AddAsync(data);
                             int rows = await dbContext.SaveChangesAsync();
                             if (rows > 0)
-                                Console.WriteLine("Saved data on portgresql");
+                                Console.WriteLine("Saved tele data on portgresql");
                         }
                         finally
                         {
@@ -127,13 +128,53 @@ public class MQTTBackgroundService : BackgroundService
                     {
                         try
                         {
-                            DateTime parsedDate = DateTime.ParseExact(alarmlog.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                            DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
-                            alarmlog.Dates = utcDate;
-                            await dbContext.AlarmLogs.AddAsync(alarmlog);
-                            int rows = await dbContext.SaveChangesAsync();
-                            if (rows > 0)
-                                Console.WriteLine("Saved data on portgresql");
+                            AlarmLogs foundAlarmLog = dbContext.AlarmLogs.Where(x => x.AlarmId == alarmlog.AlarmId).OrderByDescending(x => x.Dates).FirstOrDefault();
+                            if (foundAlarmLog is null && alarmlog.NewAlarm)
+                            {
+                                DateTime parsedDate = DateTime.ParseExact(alarmlog.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                                DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                                alarmlog.Dates = utcDate;
+                                await dbContext.AlarmLogs.AddAsync(alarmlog);
+                                int rows = await dbContext.SaveChangesAsync();
+                                if (rows > 0)
+                                    Console.WriteLine("Saved alarmlog data on portgresql");
+                                return;
+                            }
+                            if (foundAlarmLog is null)
+                            {
+                                return;
+                            }
+                            if (foundAlarmLog.NewAlarm && alarmlog.NewAlarm)
+                            {
+                                return;
+                            }
+                            if (!foundAlarmLog.NewAlarm && !alarmlog.NewAlarm)
+                            {
+                                return;
+                            }
+                            if (foundAlarmLog.NewAlarm && !alarmlog.NewAlarm)
+                            {
+                                foundAlarmLog.NewAlarm = alarmlog.NewAlarm;
+                                await dbContext.AlarmLogs.Where(x => x.Id == foundAlarmLog.Id).ExecuteUpdateAsync(x => x.SetProperty(x => x.NewAlarm, false));
+                                return;
+                            }
+                            else 
+                            {
+                                if (topic.Contains("status") && alarmlog.NewAlarm)
+                                {
+                                    alarmlog.Dates = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+                                }
+                                else
+                                {
+                                    DateTime parsedDate = DateTime.ParseExact(alarmlog.Date, "dddd, yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                                    DateTime utcDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
+                                    alarmlog.Dates = utcDate;
+                                }
+                                await dbContext.AlarmLogs.AddAsync(alarmlog);
+                                int rows = await dbContext.SaveChangesAsync();
+                                if (rows > 0)
+                                    Console.WriteLine("Saved alarmlog data on portgresql");
+                            }
                          }
                         finally
                         {

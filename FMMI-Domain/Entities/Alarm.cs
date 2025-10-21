@@ -2,14 +2,18 @@
 
 namespace FMMI_Domain.Entities;
 
-public class Alarm : BaseIdEntity
+public class Alarm : Concurrency
 {
     public string Name { get; set; }
-    public double Value { get; set; }
+    public double? Value { get; set; }
     public string Description { get; set; }
-    public string Topics { get; set; }
 
-    public List<AlarmLogs> AlarmLogs { get; set; }
+    public int? MqttTopicId { get; set; }
+    public MqttTopic? Topics { get; set; }
+
     public int DeviceId { get; set; }
     public Device Device { get; set; }
+
+    public List<AlarmLogs> AlarmLogs { get; set; }
+    
 }

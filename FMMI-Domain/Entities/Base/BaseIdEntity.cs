@@ -13,8 +13,6 @@ namespace FMMI_Domain.Entities.Base
         [Key]
         public int Id { get; set; }
 
-        [ConcurrencyCheck]
-        public virtual string ConcurrencyStamp { get; set; }
 
     }
 }
