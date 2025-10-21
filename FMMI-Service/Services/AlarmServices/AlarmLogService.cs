@@ -14,9 +14,9 @@ internal class AlarmLogService : BaseService<AlarmLogs>
     {
        _context = context; 
     }
-    public Result<List<AlarmLogs>> GetAllActiveAlarmlogs()
-    {
-        List<ShowAlarmLogDTO> alarmlogs = new();
+    //public Result<List<AlarmLogs>> GetAllActiveAlarmlogs()
+    //{
+    //    List<ShowAlarmLogDTO> alarmlogs = new();
 
-    } 
+    //} 
 }

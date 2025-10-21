@@ -10,7 +10,7 @@
 
 
 <div class="content">
-    <ChooseIntervalComponent/>
+    <ChooseIntervalComponent OnModeChanged="@OnRealtimeModeChanged" />
     <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
         <DashboardLayoutPanels>
             <SfChart ID="tempChart" @ref="tempChartObj" Title="Temperatur (sidste 6 timer)">
@@ -130,6 +130,12 @@
             await _mqttClient.SubscribeAsync("device/+/realtime/#");
         }
 
+    }
+
+    private async Task OnRealtimeModeChanged(bool newMode)
+    {
+        IsRealtimeMode = newMode; // Dette triggerer automatisk OnModeChanged()
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)

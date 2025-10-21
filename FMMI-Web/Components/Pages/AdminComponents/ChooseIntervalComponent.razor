@@ -27,7 +27,6 @@
     {
         isRealtimeMode = mode == "realtime";
 
-        // Sender ændringen til parent
         await OnModeChanged.InvokeAsync(isRealtimeMode);
 
         StateHasChanged();
