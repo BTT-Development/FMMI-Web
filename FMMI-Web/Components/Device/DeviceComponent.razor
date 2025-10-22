@@ -22,6 +22,9 @@
 
     private async Task OpenDeviceModal()
     {
+        var parameters = new ModalParameters();
+        parameters.Add("DeviceId", Device.Id);
+
         var options = new ModalOptions()
         {
             Size = ModalSize.Custom,
@@ -43,8 +46,4 @@
             Console.WriteLine("Modal was closed");
         }
     }
-
-  
-
-
 }

@@ -16,4 +16,6 @@ public static class DeviceMapping
             MqttTopic = x.MqttTopics.Select(x => x.Topic).First()
         });
     }
+
+    
 }

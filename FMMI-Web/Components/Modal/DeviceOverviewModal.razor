@@ -1,5 +1,61 @@
-﻿<h3>DeviceOverviewModal</h3>
+﻿@using FMMI_Service.DTO.Alarm
+@using FMMI_Service.DTO.Device
+@using FMMI_Service.Services.DeviceServices
+@inject IAlarmLogService _alarmLogService
+@inject IDeviceService _deviceService
 
-@code {
 
+@foreach (var item in alarmLogDTOs)
+{
+    <h1>@item.DeviceName</h1>
+    <h1>@item.Description</h1>
+}
+
+
+
+<SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
+        <DashboardLayoutPanels>
+            <SfChart ID="tempChart" Title=''>
+                <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
+                                   LabelFormat="HH:mm" IntervalType="IntervalType.Minutes" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
+                <ChartPrimaryYAxis Title="°C" />
+                <ChartSeriesCollection>
+                    <ChartSeries DataSource="alarmLogDTOs" XName="XValue" YName="YValue"
+                                 Type="ChartSeriesType.Line" Name="Temperatur" Width="2">
+                        <ChartMarker Visible="true" Height="6" Width="6"></ChartMarker>
+                        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+                    </ChartSeries>
+                </ChartSeriesCollection>
+            </SfChart>
+    </DashboardLayoutPanels>
+</SfDashboardLayout>
+
+
+@code 
+{
+    private List<ShowAlarmLogDTO> alarmLogDTOs = new List<ShowAlarmLogDTO>();
+    private ShowDeviceDTO _deviceDTO;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Result<List<ShowAlarmLogDTO>> result = await _alarmLogService.GetAllActiveAlarmlogs();
+        if (result.IsSucces)
+        {
+            
+            alarmLogDTOs = result.Data;
+        }
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstrender)
+    {
+        if (firstrender)
+        {
+
+        }
+    }
+
+    private void CreateDevice()
+    {
+        _deviceService.Create
+    }
 }

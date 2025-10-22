@@ -1,4 +1,5 @@
-﻿@using FMMI_Domain.Entities
+﻿@using Blazored.Toast.Services
+@using FMMI_Domain.Entities
 @using FMMI_Service.DTO.Data
 @using FMMI_Service.Services.TelemetriService
 @using MQTTnet
@@ -6,6 +7,7 @@
 @using MQTTnet.Extensions.TopicTemplate;
 @using System.Text.Json
 @using System.Text
+@inject IToastService _toastService
 @inject ITelemetriService _service
 
 
@@ -77,12 +79,6 @@
     public List<ChartData> TemperaturData = new();
     public List<ChartData> FugtighedData = new();
 
-    protected async override Task OnInitializedAsync()
-    {
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) { }
-
     private async Task MqttConnect()
     {
         try
@@ -153,7 +149,7 @@
     {
         try
         {
-            
+
             telemetriData = await _service.GetDataAsync();
 
             var now = DateTime.Now;
@@ -180,8 +176,7 @@
         }
         catch (Exception)
         {
-
-            throw;
+            _toastService.ShowError("Error, prøv igen");
         }
 
     }
@@ -219,8 +214,6 @@
                     });
                 }
             }
-
-
         }
         catch (Exception ex)
         {
