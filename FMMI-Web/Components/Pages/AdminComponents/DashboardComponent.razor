@@ -146,14 +146,10 @@
     {
         try
         {
-            var result = await _service.GetDataAsync();
-            if (result is not null)
-            {
-                telemetriData = result.Data;
-            }
-
+            telemetriData = _service.GetData();
+            
             var now = DateTime.Now;
-            var tweentyFourHours = now.AddHours(-24);
+            var tweentyFourHours = now.AddHours(-6);
 
             // Temperatur
             var tempLast6h = telemetriData

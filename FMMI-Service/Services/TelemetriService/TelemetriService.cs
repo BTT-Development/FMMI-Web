@@ -18,14 +18,14 @@ namespace FMMI_Service.Services.TelemetriService
 
         #region Data methods
 
-        public async Task<Result<List<Data>>> GetDataAsync()
+        public List<Data> GetData()
         {
-            return Result<List<Data>>.Succes(await _context.TelemetriData.ToListAsync(), "Data fundet.");
+            return _context.TelemetriData.Include(x => x.DataType).ToList();
         }
 
         public async Task<Result<List<DataDTO>>> GetDataByDeviceIdAsync(int deviceId)
         {
-            return Result<List<DataDTO>>.Succes(await _context.TelemetriData.Include(x => x.DataType).Where(t => t.DeviceID == deviceId)
+            return Result<List<DataDTO>>.Succes(await _context.TelemetriData.Include(x => x.DataType).Where(t => t.Device.Id == deviceId)
                 .MapDeviceToDTO().ToListAsync(), "Data fundet.");
         }
 

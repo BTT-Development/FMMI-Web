@@ -13,7 +13,7 @@ namespace FMMI_Service.Services.TelemetriService
     public interface ITelemetriService
     {
         #region Data methods
-        Task<Result<List<Data>>> GetDataAsync();
+        List<Data> GetData();
         Task<Result<List<DataDTO>>> GetDataByDeviceIdAsync(int deviceId);
         Task InsertData(Data data);
         Task<List<DataDTO>> GetRealTidsDataAsync(MqttTopic topic);
