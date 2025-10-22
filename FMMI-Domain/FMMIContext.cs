@@ -15,6 +15,7 @@ public class FMMIContext : DbContext
     public DbSet<DataType> DataTypes { get; set; }
     public DbSet<MqttTopic> MqttTopics { get; set; }
     public DbSet<MqttPubSub> MqttPubSubs { get; set; }
+    public DbSet<DeviceSettings> DeviceSettings { get; set; }
 
     public FMMIContext(DbContextOptions<FMMIContext> options) : base(options) { }
     
@@ -23,13 +24,19 @@ public class FMMIContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        SeedMqttPubSub(modelBuilder);
-        SeedMqttTopics(modelBuilder);
+        modelBuilder.Entity<DeviceSettings>()
+            .HasOne(x => x.Device)
+            .WithOne(x => x.Settings)
+            .HasForeignKey<Device>(x => x.DeviceSettingsId);
+
         SeedDataType(modelBuilder);
         SeedDeviceType(modelBuilder);
         SeedLocation(modelBuilder);
         SeedMachine(modelBuilder);
         SeedDevice(modelBuilder);
+        SeedMqttPubSub(modelBuilder);
+        SeedMqttTopics(modelBuilder);
+        SeedDeviceSettings(modelBuilder);
         SeedAlarm(modelBuilder);
     }
 
@@ -59,7 +66,7 @@ public class FMMIContext : DbContext
     private void SeedDevice(ModelBuilder modelbuilder)
     {
         modelbuilder.Entity<Device>().HasData(
-            new Device { Id = 1, Name = "TempSensor1", MachineId = 1, DeviceTypeID = 1, AlarmId = 1, ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610"  },
+            new Device { Id = 1, Name = "Esp32-s3", MachineId = 1, DeviceTypeID = 1, AlarmId = 1, ConcurrencyStamp = "283dbf03-6f12-47e6-acf4-970f87dda610"  },
             new Device { Id = 2, Name = "HumiditySensor1", MachineId = 1, DeviceTypeID = 1, AlarmId = 1 , ConcurrencyStamp = "1b8ec008-2c2d-4077-9c1d-b3c224dc031f" },
             new Device { Id = 3, Name = "TempSensor2", MachineId = 2, DeviceTypeID = 1, AlarmId = 1 , ConcurrencyStamp = "bb1ad2b2-b9a1-403c-8dda-2f807b34d357" },
             new Device { Id = 4, Name = "HumiditySensor2", MachineId = 2, DeviceTypeID = 1, AlarmId = 1 , ConcurrencyStamp = "06360baf-4182-41b3-8194-28b23b08b727" }
@@ -93,6 +100,12 @@ public class FMMIContext : DbContext
         modelbuilder.Entity<MqttTopic>().HasData(
             new MqttTopic { Id = 1, Description = "status", Topic = "device/esp32/alarm/status", MqttPubSubId = 2, ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5e7c51" },
             new MqttTopic { Id = 2, Description = "Dht11", Topic = "device/esp32/alarm/dht11", MqttPubSubId = 2, ConcurrencyStamp = "03e9f1b2-e9c8-469c-91fa-00be8c5f7c51" }
+            );
+    }
+    private void SeedDeviceSettings(ModelBuilder modelbuilder)
+    {
+        modelbuilder.Entity<DeviceSettings>().HasData(
+            new DeviceSettings { Id = 1, RealtimeInterval = 1000, DataInterval = 10000, Topic = "/device/esp32/settings", DeviceId = 1, ConcurrencyStamp = "03f9f1b2-e9c8-469c-91fa-00be8c5f7c51" }
             );
     }
   

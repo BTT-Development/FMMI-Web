@@ -6,9 +6,6 @@ using FMMI_Service.Result;
 using FMMI_Service.Services.Base;
 using Microsoft.EntityFrameworkCore;
 using MQTTnet.Client;
-using Microsoft.AspNetCore.SignalR.Client;
-
-
 
 namespace FMMI_Service.Services.DeviceServices;
 
@@ -20,16 +17,13 @@ internal class DeviceService : BaseService<Device>, IDeviceService
     
     private readonly MqttClientOptionsBuilder _mqttClientOptionsBuilder;
 
-    private HubConnection _hubConnection;
 
     public DeviceService(FMMIContext context, IMqttClient mqttClient, MqttClientOptionsBuilder mqttClientOption) : base(context)
     {
         _context = context;
         _mqttClient = mqttClient;
         _mqttClientOptionsBuilder = mqttClientOption;
-        _hubConnection = new HubConnectionBuilder()
-          .WithUrl("http://localhost:5147/alarmHub")
-          .Build();
+       
     }
     public Result<List<ShowDeviceDTO>> GetDevicesByMachineId(int id)
     {
@@ -52,6 +46,10 @@ internal class DeviceService : BaseService<Device>, IDeviceService
       
         return Result<bool>.Succes(status, "status");
     }
+    //public async Task<Result> UpdateTimeInterval()
+    //{
+
+    //}
 
     //public Result<ShowDeviceDTO> CreateDevice(ShowDeviceDTO deviceDTO) => base.CreateAsync(deviceDTO);
 }
