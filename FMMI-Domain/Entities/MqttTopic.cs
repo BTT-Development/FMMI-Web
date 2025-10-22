@@ -13,6 +13,9 @@ public class MqttTopic : Concurrency
     public int? DeviceId { get; set; }
     public List<Device>? Devices { get; set; }
 
+    public int? DeviceSettingsId { get; set; }
+    public DeviceSettings? DeviceSettings { get; set; }
+
     public int? AlarmId { get; set; }
     public List<Alarm>? Alarm { get; set; }
 }

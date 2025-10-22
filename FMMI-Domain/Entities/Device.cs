@@ -20,8 +20,8 @@ public class Device : Concurrency
 
     public List<MqttTopic>? MqttTopics { get; set; }
 
-    public int DeviceSettingsId { get; set; }
-    public DeviceSettings Settings { get; set; }
+    public int? DeviceSettingsId { get; set; }
+    public DeviceSettings? Settings { get; set; }
 
     #endregion
 }
