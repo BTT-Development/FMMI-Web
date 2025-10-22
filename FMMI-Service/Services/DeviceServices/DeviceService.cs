@@ -16,10 +16,14 @@ internal class DeviceService : BaseService<Device>, IDeviceService
     {
         _context = context;
     }
-    public Result<List<ShowDeviceDTO>> GetDevicesByMachineId(int id)
+    public async Task<Result<List<ShowDeviceDTO>>> GetDevicesByMachineId(int id)
     {
         List<ShowDeviceDTO> devices = new();
-        devices = _context.Devices.Include(x => x.MqttTopics.Where(x => x.Description == "status")).Include(x => x.DeviceType).Where(x => x.MachineId == id).MapDeviceToDTO().ToList();
+        devices = await _context.Devices.AsNoTracking()
+            .Include(x => x.MqttTopics.Where(x => x.Description == "status"))
+            .Include(x => x.DeviceType)
+            .Where(x => x.MachineId == id)
+            .MapDeviceToDTO().ToListAsync();
         if (devices.Count > 0)
         {
             return Result<List<ShowDeviceDTO>>.Succes(devices, "Data fundet.");
@@ -27,5 +31,46 @@ internal class DeviceService : BaseService<Device>, IDeviceService
         return Result<List<ShowDeviceDTO>>.Fail("Data fundet.");
     }
 
-    public Result<ShowDeviceDTO> CreateDevice(ShowDeviceDTO deviceDTO) => base.CreateAsync(deviceDTO);
+    public async  Task<Result<ShowDeviceDTO>> GetDeviceById(int id)
+    {
+        ShowDeviceDTO dto = _context.Devices.Where(x => x.Id == id).MapDeviceToDTO().FirstOrDefault();
+        if (dto is not null)
+        {
+            return Result<ShowDeviceDTO>.Succes(dto, "Succes");
+        }
+        else
+        {
+            return Result<ShowDeviceDTO>.Fail("Fejl");
+        }
+    }
+
+    public Result<Device> CreateDevice(ShowDeviceDTO deviceDTO)
+    {
+        Device device = deviceDTO.MapDTOtoDevice();
+        _context.Devices.Add(device);
+        return Result<Device>.Succes(device, "Device oprettet.");
+    }
+
+    public Result<Device> UpdateDevice(ShowDeviceDTO deviceDTO)
+    {
+        Device? device = _context.Devices.FirstOrDefault(x => x.Id == deviceDTO.Id);
+        if (device == null)
+        {
+            return Result<Device>.Fail("Device ikke fundet.");
+        }
+        device = deviceDTO.MapDTOtoDevice();
+        _context.Devices.Update(device);
+        return Result<Device>.Succes(device, "Device opdateret.");
+    }
+
+    public Result<bool> DeleteDevice(int id)
+    {
+        Device? device = _context.Devices.FirstOrDefault(x => x.Id == id);
+        if (device == null)
+        {
+            return Result<bool>.Fail("Device ikke fundet.");
+        }
+        _context.Devices.Remove(device);
+        return Result<bool>.Succes(true, "Device slettet.");
+    }
 }

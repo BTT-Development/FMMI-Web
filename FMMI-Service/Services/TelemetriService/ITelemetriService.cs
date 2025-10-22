@@ -1,5 +1,6 @@
 ﻿using FMMI_Domain.Entities;
 using FMMI_Service.DTO.Data;
+using FMMI_Service.Result;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,10 @@ namespace FMMI_Service.Services.TelemetriService
     public interface ITelemetriService
     {
         #region Data methods
-        Task<List<Data>> GetDataAsync();
-        Task<List<Data>> GetDataByDeviceIdAsync(int deviceId);
+        Task<Result<List<Data>>> GetDataAsync();
+        Task<Result<List<DataDTO>>> GetDataByDeviceIdAsync(int deviceId);
         Task InsertData(Data data);
-        Task<List<Data>> GetRealTidsDataAsync(MqttTopic topic);
-        Task<DataDTO> GetLatestRealtimeDataAsync();
+        Task<List<DataDTO>> GetRealTidsDataAsync(MqttTopic topic);
         #endregion
 
 

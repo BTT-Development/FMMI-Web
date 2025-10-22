@@ -65,9 +65,6 @@
     }
 
     public List<Data> telemetriData = new List<Data>();
-    SfChart chartObj;
-    SfChart barchartObj;
-    SfChart linechartObj;
     SfChart tempChartObj;
     SfChart humidityChartObj;
     private object[] Value = new object[] { new DateTime(2025, 01, 01), new DateTime(2025, 10, 01) };
@@ -149,8 +146,11 @@
     {
         try
         {
-
-            telemetriData = await _service.GetDataAsync();
+            var result = await _service.GetDataAsync();
+            if (result is not null)
+            {
+                telemetriData = result.Data;
+            }
 
             var now = DateTime.Now;
             var tweentyFourHours = now.AddHours(-24);

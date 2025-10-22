@@ -1,5 +1,4 @@
 ﻿using FMMI_Domain.Entities;
-
 using FMMI_Service.DTO.Device;
 
 namespace FMMI_Service.Mapping.Device;
@@ -17,5 +16,13 @@ public static class DeviceMapping
         });
     }
 
-    
+    public static FMMI_Domain.Entities.Device MapDTOtoDevice (this ShowDeviceDTO deviceDTO)
+    {
+        return new FMMI_Domain.Entities.Device
+        {
+            Id = deviceDTO.Id,
+            Name = deviceDTO.Name,
+            MachineId = deviceDTO.MachineId
+        };
+    }
 }

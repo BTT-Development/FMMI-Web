@@ -4,6 +4,7 @@ using FMMI_Service.DTO.Location;
 using FMMI_Service.Result;
 using FMMI_Service.Services.Base;
 using FMMI_Service.Mapping.Location;
+using Microsoft.EntityFrameworkCore;
 
 namespace FMMI_Service.Services.LocationServices;
 
@@ -14,10 +15,10 @@ internal class LocationService : BaseService<Locations>, ILocationService
     {
         _context = context;
     }
-    public Result<List<ShowLocationDTO>> GetAllLocations()
+    public async Task<Result<List<ShowLocationDTO>>> GetAllLocations()
     {
         List<ShowLocationDTO> list = new(); 
-        list = _context.Locations.MapToLocationDto().ToList();
+        list = await _context.Locations.AsNoTracking().MapToLocationDto().ToListAsync();
         if (list.Count > 0)
         {
             return Result<List<ShowLocationDTO>>.Succes(list, "Fundet data");

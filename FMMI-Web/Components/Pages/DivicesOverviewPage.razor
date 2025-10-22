@@ -68,20 +68,20 @@
 
 
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        Result<List<ShowLocationDTO>> result = _locationService.GetAllLocations();
+        Result<List<ShowLocationDTO>> result = await _locationService.GetAllLocations();
         if (result.IsSucces)
         {
             _locations = result.Data;
             _pickedLocation = new bool[_locations.Count];
         }
     }
-    private void ClickLocationName(int id, int index)
+    private async Task ClickLocationName(int id, int index)
     {
         _machines.Clear();
         _devices.Clear();
-        Result<List<ShowMachineDTO>> result = _machineService.GetMachinesByLocationId(id);
+        Result<List<ShowMachineDTO>> result = await _machineService.GetMachinesByLocationId(id);
         if (result.IsSucces)
         {
             _machines = result.Data;
@@ -94,10 +94,10 @@
         _showDevices = false;
         StateHasChanged();
     }
-    private void ClickMachineName(int id, int index)
+    private async Task ClickMachineName(int id, int index)
     {
         _devices.Clear();
-        Result<List<ShowDeviceDTO>> result = _deviceService.GetDevicesByMachineId(id);
+        Result<List<ShowDeviceDTO>> result = await _deviceService.GetDevicesByMachineId(id);
         if (result.IsSucces)
         {
             _devices = result.Data;

@@ -1,26 +1,28 @@
 ﻿@using FMMI_Service.DTO.Alarm
+@using FMMI_Service.DTO.Data
 @using FMMI_Service.DTO.Device
 @using FMMI_Service.Services.DeviceServices
+@using FMMI_Service.Services.TelemetriService
 @inject IAlarmLogService _alarmLogService
 @inject IDeviceService _deviceService
+@inject ITelemetriService _telemetriService
 
-
-@foreach (var item in alarmLogDTOs)
-{
-    <h1>@item.DeviceName</h1>
-    <h1>@item.Description</h1>
-}
-
-
+@* 
+<EditForm Model="@_deviceDTO" OnValidSubmit="CreateDevice">
+    <DataAnnotationsValidator />
+    <label>Device Name: @_deviceDTO.Name</label>
+    <Input value=" type="text"/>
+    <button type="submit">Gem</button>
+</EditForm>  *@
 
 <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
         <DashboardLayoutPanels>
-            <SfChart ID="tempChart" Title=''>
+        <SfChart ID="tempChart" @ref="linechartObj" Title=''>
                 <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
                                    LabelFormat="HH:mm" IntervalType="IntervalType.Minutes" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
                 <ChartPrimaryYAxis Title="°C" />
                 <ChartSeriesCollection>
-                    <ChartSeries DataSource="alarmLogDTOs" XName="XValue" YName="YValue"
+                    <ChartSeries DataSource="_telemetriDTOs" XName="XValue" YName="YValue"
                                  Type="ChartSeriesType.Line" Name="Temperatur" Width="2">
                         <ChartMarker Visible="true" Height="6" Width="6"></ChartMarker>
                         <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
@@ -33,29 +35,59 @@
 
 @code 
 {
-    private List<ShowAlarmLogDTO> alarmLogDTOs = new List<ShowAlarmLogDTO>();
-    private ShowDeviceDTO _deviceDTO;
+    [Parameter]
+    public int DeviceId { get; set; }
+    SfChart linechartObj;
+
+    private List<ShowAlarmLogDTO> _alarmLogDTOs = new List<ShowAlarmLogDTO>();
+    private List<DataDTO> _telemetriDTOs = [];
+    private ShowDeviceDTO _deviceDTO = new();
 
     protected async override Task OnInitializedAsync()
     {
-        Result<List<ShowAlarmLogDTO>> result = await _alarmLogService.GetAllActiveAlarmlogs();
-        if (result.IsSucces)
-        {
-            
-            alarmLogDTOs = result.Data;
-        }
     }
 
-    protected async override Task OnAfterRenderAsync(bool firstrender)
+    protected async override Task OnParametersSetAsync()
     {
-        if (firstrender)
-        {
+        await GetDeviceById();
+        StateHasChanged();
+    }
 
+    private async Task GetDataByDeviceId()
+    {
+        var data = await _telemetriService.GetDataByDeviceIdAsync(DeviceId);
+        if (data is not null)
+        {
+            _telemetriDTOs = data.Data;
         }
+
+    }
+
+    private async Task GetLogsData()
+    {
+        var logs = await (_alarmLogService.GetAllActiveAlarmlogs());
+        if (logs is not null)
+        {
+            _alarmLogDTOs = logs.Data;
+        }
+
+    }
+
+    private async Task GetDeviceById()
+    {
+        var deviceDTO = await _deviceService.GetDeviceById(DeviceId);
+        if (deviceDTO is not null)
+        {
+            _deviceDTO = deviceDTO.Data;
+        }
+
+        await GetDataByDeviceId();
+        await GetLogsData();
+
     }
 
     private void CreateDevice()
     {
-        _deviceService.Create
+        _deviceService.CreateDevice(_deviceDTO);
     }
 }
