@@ -10,14 +10,19 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Formatter;
 using Syncfusion.Blazor;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        options.DetailedErrors = true;
+    });
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddBlazoredModal();
 builder.Services.AddSignalR();
@@ -41,10 +46,17 @@ builder.Services.AddCascadingAuthenticationState();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-
 builder.Services.AddDbContext<FMMIContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString),
+    ServiceLifetime.Scoped);
 
+IConfigurationSection broker = builder.Configuration.GetSection("BrokerHostSettings");
+
+builder.Services.AddSingleton(new MqttFactory().CreateMqttClient());
+builder.Services.AddSingleton(new MqttClientOptionsBuilder()
+                .WithTcpServer(broker["Host"], Convert.ToInt32(broker["Port"]))
+                .WithProtocolVersion(MqttProtocolVersion.V311)
+                .WithTlsOptions(x => x.UseTls()));
 #region Sessions
 
 builder.Services.AddDistributedMemoryCache(); // Required for session storage

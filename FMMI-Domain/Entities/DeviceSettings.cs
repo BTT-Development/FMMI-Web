@@ -8,16 +8,15 @@ using System.Threading.Tasks;
 
 namespace FMMI_Domain.Entities
 {
-    [NotMapped]
+
     public class DeviceSettings : Concurrency
     {
-        public string SettingName { get; set; }
-        public string SettingValue { get; set; }
+        public int RealtimeInterval { get; set; }
+        public int DataInterval { get; set; }
 
-        #region Navigations property
-        [ForeignKey("DeviceID")]
+        public int DeviceId { get; set; }
         public Device Devices { get; set; }
-        #endregion
+     
     }
 
 }

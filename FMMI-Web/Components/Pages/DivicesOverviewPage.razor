@@ -54,28 +54,33 @@
 @code {
     private List<(string name, int id)> _listMachineNameAndId = new();
 
+    private List<ShowLocationDTO> _locations = new();
+
     private List<ShowMachineDTO> _machines = new();
-    bool _showMachines = false;
-    bool _showDevices = false;
+
     private List<ShowDeviceDTO> _devices = new();
 
-    private List<ShowLocationDTO> _locations = new();
+    bool _showMachines = false;
+
+    bool _showDevices = false;
 
     private bool[] _pickedLocation;
 
     private bool[] _pickedMachine;
 
-
-
-
-    protected override void OnInitialized()
+    protected override void OnAfterRender(bool first)
     {
+        if (!first)
+        {
+            return;
+        }
         Result<List<ShowLocationDTO>> result = _locationService.GetAllLocations();
         if (result.IsSucces)
         {
             _locations = result.Data;
             _pickedLocation = new bool[_locations.Count];
         }
+        StateHasChanged();
     }
     private void ClickLocationName(int id, int index)
     {
