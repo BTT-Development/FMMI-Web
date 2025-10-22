@@ -5,6 +5,7 @@ using FMMI_Service.Mapping.Device;
 using FMMI_Service.Result;
 using FMMI_Service.Services.Base;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace FMMI_Service.Services.DeviceServices;
 
@@ -25,4 +26,6 @@ internal class DeviceService : BaseService<Device>, IDeviceService
         }
         return Result<List<ShowDeviceDTO>>.Fail("Data fundet.");
     }
+
+    public Result<ShowDeviceDTO> CreateDevice(ShowDeviceDTO deviceDTO) => base.CreateAsync(deviceDTO);
 }

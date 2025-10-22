@@ -1,4 +1,5 @@
 using Blazored.Modal;
+using Blazored.Toast;
 using FMMI_Domain;
 using FMMI_Service;
 using FMMI_Service.Hubs;
@@ -25,6 +26,9 @@ builder.AppendServiceConfiguration();
 
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddBlazoredToast();
+builder.Services.AddBlazoredModal();
 
 
 builder.Services.AddControllersWithViews()

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FMMI_Domain.Migrations
 {
     [DbContext(typeof(FMMIContext))]
-    [Migration("20251020135335_first")]
-    partial class first
+    [Migration("20251021085103_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

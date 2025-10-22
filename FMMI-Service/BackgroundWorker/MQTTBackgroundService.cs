@@ -216,8 +216,6 @@ public class MQTTBackgroundService : BackgroundService
         }
     }
 
-
-
     private async Task SubscribeToTopicsAsync(CancellationToken stoppingToken)
     {
         MqttFactory mqttFactory = new MqttFactory();
