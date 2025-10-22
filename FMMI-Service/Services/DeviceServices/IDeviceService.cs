@@ -11,6 +11,5 @@ public interface IDeviceService
     Result<Device> CreateDevice(ShowDeviceDTO deviceDTO);
     Result<Device> UpdateDevice(ShowDeviceDTO deviceDTO);
     Result<bool> DeleteDevice(int id);
-    Result<List<ShowDeviceDTO>> GetDevicesByMachineId(int id);
     Task<Result<bool>> GetOnlineStatusByDeviceId(int id);
 }

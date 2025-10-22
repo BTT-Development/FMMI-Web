@@ -23,10 +23,10 @@ namespace FMMI_Service.Services.TelemetriService
             return _context.TelemetriData.Include(x => x.DataType).ToList();
         }
 
-        public async Task<Result<List<DataDTO>>> GetDataByDeviceIdAsync(int deviceId)
+        public async Task<Result<List<Data>>> GetDataByDeviceIdAsync(int deviceId)
         {
-            return Result<List<DataDTO>>.Succes(await _context.TelemetriData.Include(x => x.DataType).Where(t => t.Device.Id == deviceId)
-                .MapDeviceToDTO().ToListAsync(), "Data fundet.");
+            return Result<List<Data>>
+                .Succes(await _context.TelemetriData.Include(x => x.DataType).Where(t => t.Device.Id == deviceId).ToListAsync(), "Data fundet.");
         }
 
         public async Task<List<DataDTO>> GetRealTidsDataAsync(MqttTopic topic)

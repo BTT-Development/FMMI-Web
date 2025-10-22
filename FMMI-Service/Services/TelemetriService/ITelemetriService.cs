@@ -14,7 +14,7 @@ namespace FMMI_Service.Services.TelemetriService
     {
         #region Data methods
         List<Data> GetData();
-        Task<Result<List<DataDTO>>> GetDataByDeviceIdAsync(int deviceId);
+        Task<Result<List<Data>>> GetDataByDeviceIdAsync(int deviceId);
         Task InsertData(Data data);
         Task<List<DataDTO>> GetRealTidsDataAsync(MqttTopic topic);
         #endregion

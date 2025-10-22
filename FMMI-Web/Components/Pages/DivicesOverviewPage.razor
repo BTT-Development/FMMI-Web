@@ -34,7 +34,7 @@
             }
             
         </div>
-     }
+    }
     @if (_showDevices)
     {
         
@@ -68,13 +68,13 @@
 
     private bool[] _pickedMachine;
 
-    protected override void OnAfterRender(bool first)
+    protected async override void OnAfterRender(bool first)
     {
         if (!first)
         {
             return;
         }
-        Result<List<ShowLocationDTO>> result = _locationService.GetAllLocations();
+        Result<List<ShowLocationDTO>> result = await _locationService.GetAllLocations();
         if (result.IsSucces)
         {
             _locations = result.Data;

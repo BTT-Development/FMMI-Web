@@ -34,7 +34,7 @@
 <div class="content">
     <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
         <DashboardLayoutPanels>
-            <SfChart ID="tempChart" @ref="tempChartObj" Title='@(!IsRealTimeMode ? "Temperatur (sidste 24 timer)" : "Temperatur ( RealTime )")'>
+            <SfChart ID="tempChart" @ref="tempChartObj" Title='@(!IsRealTimeMode ? "Temperatur (sidste 24 timer) °C" : "Temperatur ( RealTime )")'>
                 <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
                                    LabelFormat='@(IsRealTimeMode ? "HH:mm:ss" : "HH:mm")' IntervalType="@(IsRealTimeMode ? IntervalType.Seconds : IntervalType.Minutes)" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
                 <ChartPrimaryYAxis Title="°C" />
@@ -47,7 +47,7 @@
                 </ChartSeriesCollection>
             </SfChart>
 
-            <SfChart ID="humidityChart" @ref="humidityChartObj" Title='@(!IsRealTimeMode ? "Luftfugtighed (sidste 24 timer)" : "Luftfugtighed ( RealTime )")'>
+            <SfChart ID="humidityChart" @ref="humidityChartObj" Title='@(!IsRealTimeMode ? "Luftfugtighed (sidste 24 timer) %" : "Luftfugtighed ( RealTime )")'>
                 <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
                                    LabelFormat='@(IsRealTimeMode ? "HH:mm:ss" : "HH:mm")' IntervalType="@(IsRealTimeMode ? IntervalType.Seconds : IntervalType.Minutes)" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
                 <ChartPrimaryYAxis Title="%" />

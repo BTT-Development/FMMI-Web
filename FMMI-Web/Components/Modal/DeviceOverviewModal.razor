@@ -1,46 +1,89 @@
-﻿@using FMMI_Service.DTO.Alarm
+﻿@using FMMI_Domain.Entities
+@using FMMI_Service.DTO.Alarm
 @using FMMI_Service.DTO.Data
 @using FMMI_Service.DTO.Device
 @using FMMI_Service.Services.DeviceServices
 @using FMMI_Service.Services.TelemetriService
+@using System.Text
+@using FMMI_Web.Components.Pages.AdminComponents
+@using MQTTnet
+@using MQTTnet.Client
+@using System.Text.Json
 @inject IAlarmLogService _alarmLogService
 @inject IDeviceService _deviceService
 @inject ITelemetriService _telemetriService
+<div class="d-flex justify-content-center my-3">
+    <div class="intervalStyle">
+        <ChooseIntervalComponent OnModeChanged="@OnRealtimeModeChanged" />
+        
+            <button class="btn btn-primary" name="opret-enhed">Opret enhed</button>
+            <button class="btn btn-secondary" name="rediger-enhed">Rediger enhed</button>
+            <button class="btn btn-danger" name="slet-enhed">Slet enhed</button>
+            <button class="btn btn-success" name="opret-alarm">Opret alarm</button>
+        
+    </div>
+</div>
 
-@* 
-<EditForm Model="@_deviceDTO" OnValidSubmit="CreateDevice">
-    <DataAnnotationsValidator />
-    <label>Device Name: @_deviceDTO.Name</label>
-    <Input value=" type="text"/>
-    <button type="submit">Gem</button>
-</EditForm>  *@
-
-<SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
+<div class="content">
+    <SfDashboardLayout Columns="6" CellSpacing="@(new double[] { 10, 10 })">
         <DashboardLayoutPanels>
-        <SfChart ID="tempChart" @ref="linechartObj" Title=''>
+            <SfChart ID="tempChart" @ref="tempChartObj" Title='@(!IsRealTimeMode ? "Temperatur - °C (sidste 24 timer)" : "Temperatur - °C ( RealTime )")'>
                 <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
-                                   LabelFormat="HH:mm" IntervalType="IntervalType.Minutes" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
+                                   LabelFormat='@(IsRealTimeMode ? "HH:mm:ss" : "HH:mm")' IntervalType="@(IsRealTimeMode ? IntervalType.Seconds : IntervalType.Minutes)" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
                 <ChartPrimaryYAxis Title="°C" />
                 <ChartSeriesCollection>
-                    <ChartSeries DataSource="_telemetriDTOs" XName="XValue" YName="YValue"
-                                 Type="ChartSeriesType.Line" Name="Temperatur" Width="2">
+                    <ChartSeries DataSource="@TemperaturData" XName="XValue" YName="YValue"
+                                 Type="ChartSeriesType.Line" Name="Temperatur - °C" Width="2">
                         <ChartMarker Visible="true" Height="6" Width="6"></ChartMarker>
                         <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
                     </ChartSeries>
                 </ChartSeriesCollection>
             </SfChart>
-    </DashboardLayoutPanels>
-</SfDashboardLayout>
+
+            <SfChart ID="humidityChart" @ref="humidityChartObj" Title='@(!IsRealTimeMode ? "Luftfugtighed - % (sidste 24 timer)" : "Luftfugtighed - % ( RealTime )")'>
+                <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
+                                   LabelFormat='@(IsRealTimeMode ? "HH:mm:ss" : "HH:mm")' IntervalType="@(IsRealTimeMode ? IntervalType.Seconds : IntervalType.Minutes)" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
+                <ChartPrimaryYAxis Title="%" />
+                <ChartSeriesCollection>
+                    <ChartSeries DataSource="@FugtighedData" XName="XValue" YName="YValue"
+                                 Type="ChartSeriesType.Line" Name="Luftfugtighed - %" Width="2">
+                        <ChartMarker Visible="true" Height="6" Width="6"></ChartMarker>
+                        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+                    </ChartSeries>
+                </ChartSeriesCollection>
+            </SfChart>
+        </DashboardLayoutPanels>
+    </SfDashboardLayout>
+</div>
 
 
 @code 
 {
+
+    private bool _isRealTimeMode = true;
+    [Parameter]
+    public bool IsRealTimeMode
+    {
+        get => _isRealTimeMode;
+        set
+        {
+            if (_isRealTimeMode != value)
+            {
+                _isRealTimeMode = value;
+            }
+        }
+    }
     [Parameter]
     public int DeviceId { get; set; }
-    SfChart linechartObj;
-
+    SfChart tempChartObj;
+    SfChart humidityChartObj;
+    private MqttTopic _topic { get; set; }
+    private IMqttClient _mqttClient;
+    private MqttFactory _mqttFactory;
+    public List<ChartData> TemperaturData = new();
+    public List<ChartData> FugtighedData = new();
     private List<ShowAlarmLogDTO> _alarmLogDTOs = new List<ShowAlarmLogDTO>();
-    private List<DataDTO> _telemetriDTOs = [];
+    private List<Data> _telemetriDTOs = [];
     private ShowDeviceDTO _deviceDTO = new();
 
     protected async override Task OnInitializedAsync()
@@ -53,14 +96,79 @@
         StateHasChanged();
     }
 
-    private async Task GetDataByDeviceId()
+    private async Task MqttConnect()
     {
-        var data = await _telemetriService.GetDataByDeviceIdAsync(DeviceId);
-        if (data is not null)
+        try
         {
-            _telemetriDTOs = data.Data;
+            _mqttFactory = new MqttFactory();
+            _mqttClient = _mqttFactory.CreateMqttClient();
+
+            _mqttClient.ApplicationMessageReceivedAsync -= HandleApplicationMessageReceivedAsync;
+            _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceivedAsync;
+
+            MqttClientOptions mqttClientOptions = new MqttClientOptionsBuilder()
+                .WithTcpServer("49987f455bc94d2183a5075a9fa78344.s1.eu.hivemq.cloud")
+                .WithCredentials("Worker", "fMMIWORKER1234")
+                .WithTlsOptions(_ => _.UseTls())
+                .WithProtocolVersion(MQTTnet.Formatter.MqttProtocolVersion.V311)
+                .WithCleanSession()
+                .WithKeepAlivePeriod(new TimeSpan(600000000))
+                .Build();
+            if (!_mqttClient.IsConnected)
+            {
+                await _mqttClient.ConnectAsync(mqttClientOptions);
+                await _mqttClient.SubscribeAsync("device/+/realtime/#");
+            }
+            Console.WriteLine("Realtids subscribe");
+
+        }
+        catch (Exception)
+        {
+            throw;
         }
 
+    }
+    private async Task OnRealtimeModeChanged(bool newMode)
+    {
+        IsRealTimeMode = newMode;
+        TemperaturData = new();
+        FugtighedData = new();
+        if (IsRealTimeMode)
+        {
+            await MqttConnect();
+        }
+        else
+        {
+            await StopRealtimeAsync();
+            await GetDataByDeviceId();
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task GetDataByDeviceId()
+    {
+        var now = DateTime.Now;
+        var tweentyFourHours = now.AddHours(-6);
+
+        var result = await _telemetriService.GetDataByDeviceIdAsync(DeviceId);
+        // Temperatur
+        var tempLast6h = result.Data
+            .Where(td => td.DataType.TypeName == "Temperature" && td.Dates >= tweentyFourHours)
+            .GroupBy(td => new DateTime(td.Dates.Year, td.Dates.Month, td.Dates.Day, td.Dates.Hour, td.Dates.Minute / 5 * 5, 0)) // gennemsnit pr. time
+            .Select(g => new ChartData { XValue = g.Key, YValue = g.Average(x => x.Value) })
+            .OrderBy(g => g.XValue)
+            .ToList();
+
+        // Luftfugtighed
+        var humidityLast6h = result.Data
+            .Where(td => td.DataType.TypeName == "Humidity" && td.Dates >= tweentyFourHours)
+            .GroupBy(td => new DateTime(td.Dates.Year, td.Dates.Month, td.Dates.Day, td.Dates.Hour, td.Dates.Minute / 5 * 5, 0))
+            .Select(g => new ChartData { XValue = g.Key, YValue = g.Average(x => x.Value) })
+            .OrderBy(g => g.XValue)
+            .ToList();
+
+        TemperaturData = tempLast6h;
+        FugtighedData = humidityLast6h;
     }
 
     private async Task GetLogsData()
@@ -89,5 +197,73 @@
     private void CreateDevice()
     {
         _deviceService.CreateDevice(_deviceDTO);
+    }
+    private async Task StopRealtimeAsync()
+    {
+        try
+        {
+            if (_mqttClient?.IsConnected == true)
+            {
+                await _mqttClient.DisconnectAsync();
+                _mqttClient.ApplicationMessageReceivedAsync -= HandleApplicationMessageReceivedAsync;
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"MQTT stop error: {ex.Message}");
+        }
+    }
+    private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
+    {
+        try
+        {
+            var topic = e.ApplicationMessage.Topic;
+            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
+            Console.WriteLine($"Received: {topic} => {payload}");
+
+            if (!string.IsNullOrEmpty(payload))
+            {
+                if (topic.Contains("realtime"))
+                {
+                    Data data = JsonSerializer.Deserialize<Data>(Encoding.UTF8.GetString(e.ApplicationMessage.Payload));
+                    if (data is null)
+                        return;
+
+                    await InvokeAsync(() =>
+                    {
+                        if (data.DataTypeID == 1)
+                        {
+                            TemperaturData.Add(new ChartData { XValue = DateTime.Now, YValue = data.Value });
+                            if (TemperaturData.Count > 50) TemperaturData.RemoveAt(0);
+                        }
+                        else if (data.DataTypeID == 2)
+                        {
+                            FugtighedData.Add(new ChartData { XValue = DateTime.Now, YValue = data.Value });
+                            if (FugtighedData.Count > 50) FugtighedData.RemoveAt(0);
+                        }
+
+                        StateHasChanged();
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+
+    public class ChartData
+    {
+        public DateTime XValue { get; set; }
+        public double YValue { get; set; }
+        public string X { get; set; }
+        public double Y { get; set; }
+        public string Country { get; set; }
+        public string X1 { get; set; }
+        public double Y1 { get; set; }
+        public double Y2 { get; set; }
+        public double Y3 { get; set; }
+        public double Y4 { get; set; }
     }
 }
