@@ -2,21 +2,30 @@ using Blazored.Modal;
 using Blazored.Toast;
 using FMMI_Domain;
 using FMMI_Service;
+using FMMI_Service.Hubs;
 using FMMI_Web.Components;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Formatter;
 using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        options.DetailedErrors = true;
+    });
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddBlazoredModal();
+builder.Services.AddSignalR();
 
 builder.AppendServiceConfiguration();
 
@@ -36,9 +45,18 @@ builder.Services.AddServerSideBlazor()
 builder.Services.AddCascadingAuthenticationState();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<FMMIContext>(options =>
-    options.UseNpgsql(connectionString));
 
+builder.Services.AddDbContext<FMMIContext>(options =>
+    options.UseNpgsql(connectionString),
+    ServiceLifetime.Scoped);
+
+IConfigurationSection broker = builder.Configuration.GetSection("BrokerHostSettings");
+
+builder.Services.AddSingleton(new MqttFactory().CreateMqttClient());
+builder.Services.AddSingleton(new MqttClientOptionsBuilder()
+                .WithTcpServer(broker["Host"], Convert.ToInt32(broker["Port"]))
+                .WithProtocolVersion(MqttProtocolVersion.V311)
+                .WithTlsOptions(x => x.UseTls()));
 #region Sessions
 
 builder.Services.AddDistributedMemoryCache(); // Required for session storage
@@ -65,6 +83,7 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQx
 //    db.Database.Migrate(); // 
 //}
 #endregion
+
 
 app.MapGet("/login", async (HttpContext context) =>
 {
@@ -102,7 +121,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
+app.MapHub<AlarmHub>("/alarmHub");
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
 app.Run();
