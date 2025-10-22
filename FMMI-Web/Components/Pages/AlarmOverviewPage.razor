@@ -1,7 +1,21 @@
 ﻿@page "/AlarmOverview"
+@inject IAlarmLogService _alarmLogService
 
-<FMMI_Web.Components.Alarm.AlarmComponent/>
+@foreach (ShowAlarmLogDTO item in _alarmLogs)
+{
+    <FMMI_Web.Components.Alarm.AlarmComponent alarmLogDTO="item"/>
+}
 
 @code {
+    private List<ShowAlarmLogDTO> _alarmLogs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Result<List<ShowAlarmLogDTO>> result = await _alarmLogService.GetAllActiveAlarmlogs();
+        if (result.IsSucces)
+        {
+            _alarmLogs = result.Data;
+        }
+    }
 
 }

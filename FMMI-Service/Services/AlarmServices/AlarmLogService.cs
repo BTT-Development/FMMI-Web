@@ -6,7 +6,6 @@ using FMMI_Service.Result;
 using FMMI_Service.Services.Base;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace FMMI_Service.Services.AlarmServices;
 
 internal class AlarmLogService : BaseService<AlarmLogs>, IAlarmLogService

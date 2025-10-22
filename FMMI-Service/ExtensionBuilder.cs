@@ -31,7 +31,6 @@ namespace FMMI_Service
             services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IAlarmLogService, AlarmLogService>();
 
-
             return services;
         }
 

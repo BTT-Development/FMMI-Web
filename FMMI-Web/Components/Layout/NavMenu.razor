@@ -1,7 +1,9 @@
-﻿
+﻿@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @implements IDisposable
 @inject NavigationManager NavigationManager
 @inject IAlarmLogService _alarmLogService
+@inject IServiceScopeFactory _scopeFactory
+
 
 <nav class="navbar navbar-expand-lg py-0 navbarColor">
     <div class="container-fluid">
@@ -60,19 +62,47 @@
     </div>
 </nav>
 @code {
+    private HubConnection? _hubConnection;
     private string? currentUrl;
 
     private int _alarmCount;
 
     protected override async Task OnInitializedAsync()
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
+        _hubConnection = new HubConnectionBuilder()
+           .WithUrl(NavigationManager.ToAbsoluteUri("/alarmHub"))
+           .WithAutomaticReconnect()
+           .Build();
+
+        //currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        //NavigationManager.LocationChanged += OnLocationChanged;
+
+        _hubConnection.On("NewAlarm", async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                using var scope = _scopeFactory.CreateScope();
+
+                var scopeService = scope.ServiceProvider.GetRequiredService<IAlarmLogService>();
+
+                Result<int> countResult = await scopeService.GetCountOnActiceAlarmlogs();
+                if (countResult.IsSucces)
+                {
+                    _alarmCount = countResult.Data;
+                }
+                else
+                {
+                    _alarmCount = 0;
+                }
+                StateHasChanged();
+            });
+        });
         Result<int> countResult = await _alarmLogService.GetCountOnActiceAlarmlogs();
         if (countResult.IsSucces)
         {
             _alarmCount = countResult.Data;
         }
+        await _hubConnection.StartAsync();
         StateHasChanged();
     }
     

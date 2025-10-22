@@ -1,5 +1,7 @@
 ﻿using FMMI_Domain;
 using FMMI_Domain.Entities;
+using FMMI_Service.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,8 +10,10 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Extensions.TopicTemplate;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace FMMI_Service.BackgroundWorker;
 
@@ -24,6 +28,7 @@ public class MQTTBackgroundService : BackgroundService
     private static readonly MqttTopicTemplate _AlarmTopicTemp = new("device/+/alarm/#");
 
     private readonly MqttClientOptions _mqttClientOptions;
+    private HubConnection _hubConnection;
 
     public MQTTBackgroundService(IMongoDatabase database,IServiceScopeFactory scopeFactory)
     {
@@ -31,6 +36,10 @@ public class MQTTBackgroundService : BackgroundService
         _dataCollection = _dbConnection.GetCollection<Data>("Telemetri");
         _scopeFactory = scopeFactory;
 
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl("http://localhost:5147/alarmHub")
+            .Build();
+            
         MqttFactory mqttFactory = new MqttFactory();
         _mqttClient = mqttFactory.CreateMqttClient();
 
@@ -52,8 +61,13 @@ public class MQTTBackgroundService : BackgroundService
     {
         Console.WriteLine("MQTT Background Service is starting.");
 
+
         while (!stoppingToken.IsCancellationRequested)
         {
+            if (_hubConnection.State == HubConnectionState.Disconnected)
+            {
+                await _hubConnection.StartAsync();
+            }
             if (!_mqttClient.IsConnected)
             {
                 try
@@ -137,7 +151,11 @@ public class MQTTBackgroundService : BackgroundService
                                 await dbContext.AlarmLogs.AddAsync(alarmlog);
                                 int rows = await dbContext.SaveChangesAsync();
                                 if (rows > 0)
+                                {
                                     Console.WriteLine("Saved alarmlog data on portgresql");
+                                    await _hubConnection.SendAsync("NewAlarm");
+                                    
+                                }
                                 return;
                             }
                             if (foundAlarmLog is null)
@@ -156,6 +174,7 @@ public class MQTTBackgroundService : BackgroundService
                             {
                                 foundAlarmLog.NewAlarm = alarmlog.NewAlarm;
                                 await dbContext.AlarmLogs.Where(x => x.Id == foundAlarmLog.Id).ExecuteUpdateAsync(x => x.SetProperty(x => x.NewAlarm, false));
+                                await _hubConnection.SendAsync("NewAlarm");
                                 return;
                             }
                             else 
@@ -173,7 +192,10 @@ public class MQTTBackgroundService : BackgroundService
                                 await dbContext.AlarmLogs.AddAsync(alarmlog);
                                 int rows = await dbContext.SaveChangesAsync();
                                 if (rows > 0)
+                                {
                                     Console.WriteLine("Saved alarmlog data on portgresql");
+                                    await _hubConnection.SendAsync("NewAlarm");
+                                }
                             }
                          }
                         finally
