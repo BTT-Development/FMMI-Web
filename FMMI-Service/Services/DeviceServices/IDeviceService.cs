@@ -8,8 +8,8 @@ public interface IDeviceService
 {
     Task<Result<List<ShowDeviceDTO>>> GetDevicesByMachineId(int id);
     Task<Result<ShowDeviceDTO>> GetDeviceById(int id);
-    Result<Device> CreateDevice(ShowDeviceDTO deviceDTO);
+    Task<Result.Result> CreateDeviceAsync(CreateDeviceDTO deviceDTO);
     Result<Device> UpdateDevice(ShowDeviceDTO deviceDTO);
-    Result<bool> DeleteDevice(int id);
+    Task<Result.Result> DeleteDevice(int id);
     Task<Result<bool>> GetOnlineStatusByDeviceId(int id);
 }

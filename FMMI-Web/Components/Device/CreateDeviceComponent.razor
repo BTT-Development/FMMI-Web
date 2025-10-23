@@ -1,0 +1,39 @@
+﻿@using FMMI_Service.DTO.Device
+@using FMMI_Service.Services.DeviceServices
+@inject IDeviceService _deviceService;
+
+<InputText @bind-Value="_name" />
+<button type="submit" @onclick="CreateDevice">Opret </button>
+<button type="submit">Anullere </button>
+@code {
+    [Parameter]
+    public int MachineId { get; set; }
+
+    [Parameter]
+    public int LocationId { get; set; }
+
+    private string _name;
+
+    private CreateDeviceDTO _createDevice = new();
+
+    private async Task CreateDevice()
+    {
+        if (!string.IsNullOrWhiteSpace(_name))
+        {
+            _createDevice.Name = _name;
+            _createDevice.MachineId = MachineId;
+            Result result = await _deviceService.CreateDeviceAsync(_createDevice);
+            if (result.IsSucces)
+            {
+                _toastService.ShowSuccess(result.Message);
+            }
+            else
+            {
+                _toastService.ShowError(result.Message);
+            }
+            
+        }
+
+
+    }
+}

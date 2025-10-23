@@ -44,7 +44,7 @@
     private async Task OpenDeviceModal()
     {
         var parameters = new ModalParameters();
-        parameters.Add("DeviceId", Device.Id);
+        parameters.Add(nameof(DeviceOverviewModal.Device), Device);
 
         var options = new ModalOptions()
         {

@@ -57,11 +57,26 @@ internal class DeviceService : BaseService<Device>, IDeviceService
         }
     }
 
-    public Result<Device> CreateDevice(ShowDeviceDTO deviceDTO)
+    public async Task<Result.Result>CreateDeviceAsync(CreateDeviceDTO deviceDTO)
     {
-        Device device = deviceDTO.MapDTOtoDevice();
-        _context.Devices.Add(device);
-        return Result<Device>.Succes(device, "Device oprettet.");
+        Device createDevice = new();
+        createDevice.Name = deviceDTO.Name;
+        createDevice.MachineId = deviceDTO.MachineId;
+        createDevice.ConcurrencyStamp = Guid.NewGuid().ToString();
+        createDevice.DeviceTypeID = 1;
+        DeviceSettings settings = new DeviceSettings();
+        settings.Topic = "/device/id/settings";
+        settings.RealtimeInterval = 1000;
+        settings.DataInterval = 10000;
+        settings.ConcurrencyStamp = Guid.NewGuid().ToString();
+
+        createDevice.Settings = settings;
+        int row = await CreateAsync(createDevice);
+        if (row > 0)
+        {
+            return Result.Result.Succes("Device oprettet.");
+        }
+        return Result.Result.Fail("Device blev ikke oprettet.");
     }
 
     public Result<Device> UpdateDevice(ShowDeviceDTO deviceDTO)
@@ -76,15 +91,21 @@ internal class DeviceService : BaseService<Device>, IDeviceService
         return Result<Device>.Succes(device, "Device opdateret.");
     }
 
-    public Result<bool> DeleteDevice(int id)
+    public async Task<Result.Result> DeleteDevice(int id)
     {
         Device? device = _context.Devices.FirstOrDefault(x => x.Id == id);
         if (device == null)
         {
-            return Result<bool>.Fail("Device ikke fundet.");
+            return Result.Result.Fail("Device ikke fundet.");
         }
-        _context.Devices.Remove(device);
-        return Result<bool>.Succes(true, "Device slettet.");
+        int row = await HardDeleteAsync(device);
+        if (row > 0)
+        {
+            return Result.Result.Succes("Device slettet.");
+        }
+        return Result.Result.Fail("Device ikke slettet.");
+
+
     }
     public async Task<Result<bool>> GetOnlineStatusByDeviceId(int id)
     {
