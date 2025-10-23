@@ -5,5 +5,5 @@ namespace FMMI_Service.Services.MachineServices;
 
 public interface IMachineService
 {
-    Result<List<ShowMachineDTO>> GetMachinesByLocationId(int id);
+    Task<Result<List<ShowMachineDTO>>> GetMachinesByLocationId(int id);
 }

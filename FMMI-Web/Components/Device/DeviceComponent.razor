@@ -54,7 +54,7 @@
             HideHeader = true,
         };
 
-        var modal = Modal!.Show<DeviceOverviewModal>(options);
+        var modal = Modal!.Show<DeviceOverviewModal>(parameters, options);
 
         var result = await modal.Result;
 

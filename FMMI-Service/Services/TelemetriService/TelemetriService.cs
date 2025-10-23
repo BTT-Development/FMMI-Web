@@ -1,6 +1,8 @@
 ﻿using FMMI_Domain;
 using FMMI_Domain.Entities;
 using FMMI_Service.DTO.Data;
+using FMMI_Service.Mapping.Data;
+using FMMI_Service.Result;
 using FMMI_Service.Services.Base;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,49 +18,27 @@ namespace FMMI_Service.Services.TelemetriService
 
         #region Data methods
 
-        public async Task<List<Data>> GetDataAsync()
+        public List<Data> GetData()
         {
-            return await _context.TelemetriData.Include(x=> x.DataType).ToListAsync();
+            return _context.TelemetriData.Include(x => x.DataType).ToList();
         }
 
-        public async Task<List<Data>> GetDataByDeviceIdAsync(int deviceId)
+        public async Task<Result<List<Data>>> GetDataByDeviceIdAsync(int deviceId)
         {
-            return await _context.TelemetriData.Where(t => t.Device.Id == deviceId).ToListAsync();
+            return Result<List<Data>>
+                .Succes(await _context.TelemetriData.Include(x => x.DataType).Where(t => t.Device.Id == deviceId).ToListAsync(), "Data fundet.");
         }
 
-        public async Task<List<Data>> GetRealTidsDataAsync(MqttTopic topic)
+        public async Task<List<DataDTO>> GetRealTidsDataAsync(MqttTopic topic)
         {
-            return await _context.TelemetriData.Include(x => x.DataType).Where(t => t.Device.MqttTopics.Any(p => p.Topic == topic.Topic.ToString())).ToListAsync();
+            return await _context.TelemetriData.Include(x => x.DataType).Where(t => t.Device.MqttTopics.Any(p => p.Topic == topic.Topic.ToString()))
+                .MapDeviceToDTO().ToListAsync();
         }
 
         public async Task InsertData(Data data)
         {
             await _context.TelemetriData.AddAsync(data);
             await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Realtidsdata
-
-        public async Task<DataDTO> GetLatestRealtimeDataAsync()
-        {
-            var latestTemp = await _context.TelemetriData
-                .Include(d => d.DataType)
-                .Where(d => d.DataType.TypeName == "Temperature")
-                .OrderByDescending(d => d.Dates)
-                .FirstOrDefaultAsync();
-
-            var latestHumidity = await _context.TelemetriData
-                .Include(d => d.DataType)
-                .Where(d => d.DataType.TypeName == "Humidity")
-                .OrderByDescending(d => d.Dates)
-                .FirstOrDefaultAsync();
-
-            return new DataDTO
-            {
-                Temperature = latestTemp?.Value ?? 0,
-                Humidity = latestHumidity?.Value ?? 0
-            };
         }
         #endregion
     }

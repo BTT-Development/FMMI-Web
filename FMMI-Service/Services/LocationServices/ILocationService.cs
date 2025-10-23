@@ -5,5 +5,5 @@ namespace FMMI_Service.Services.LocationServices;
 
 public interface ILocationService
 {
-    Result<List<ShowLocationDTO>> GetAllLocations();
+    Task<Result<List<ShowLocationDTO>>> GetAllLocations();
 }

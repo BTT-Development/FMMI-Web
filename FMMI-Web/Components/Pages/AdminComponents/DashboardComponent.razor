@@ -14,12 +14,27 @@
 <div class="d-flex justify-content-center my-3">
     <div class="intervalStyle">
         <ChooseIntervalComponent OnModeChanged="@OnRealtimeModeChanged" />
+        @if (IsRealTimeMode)
+        {
+            <div class="form-group">
+                <label for="selection" class="block text-sm font-medium text-gray-700 mb-1">Vælg interval:</label>
+                <select id="selection"
+                        class="form-select w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                        @bind="_selectedValue">
+
+                    <option value="">-- Vælg --</option>
+                    <option>5 sekunder</option>
+                    <option>10 sekunder</option>
+                    <option>30 sekunder</option>
+                </select>
+            </div>
+        }
     </div>
 </div>
 <div class="content">
     <SfDashboardLayout Columns="6" CellSpacing="@(new double[]{10 ,10})">
         <DashboardLayoutPanels>
-            <SfChart ID="tempChart" @ref="tempChartObj" Title='@(!IsRealTimeMode ? "Temperatur (sidste 24 timer)" : "Temperatur ( RealTime )")'>
+            <SfChart ID="tempChart" @ref="tempChartObj" Title='@(!IsRealTimeMode ? "Temperatur (sidste 24 timer) °C" : "Temperatur ( RealTime )")'>
                 <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
                                    LabelFormat='@(IsRealTimeMode ? "HH:mm:ss" : "HH:mm")' IntervalType="@(IsRealTimeMode ? IntervalType.Seconds : IntervalType.Minutes)" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
                 <ChartPrimaryYAxis Title="°C" />
@@ -32,7 +47,7 @@
                 </ChartSeriesCollection>
             </SfChart>
 
-            <SfChart ID="humidityChart" @ref="humidityChartObj" Title='@(!IsRealTimeMode ? "Luftfugtighed (sidste 24 timer)" : "Luftfugtighed ( RealTime )")'>
+            <SfChart ID="humidityChart" @ref="humidityChartObj" Title='@(!IsRealTimeMode ? "Luftfugtighed (sidste 24 timer) %" : "Luftfugtighed ( RealTime )")'>
                 <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime"
                                    LabelFormat='@(IsRealTimeMode ? "HH:mm:ss" : "HH:mm")' IntervalType="@(IsRealTimeMode ? IntervalType.Seconds : IntervalType.Minutes)" Title="Tid" EdgeLabelPlacement="EdgeLabelPlacement.Shift" />
                 <ChartPrimaryYAxis Title="%" />
@@ -65,12 +80,10 @@
     }
 
     public List<Data> telemetriData = new List<Data>();
-    SfChart chartObj;
-    SfChart barchartObj;
-    SfChart linechartObj;
     SfChart tempChartObj;
     SfChart humidityChartObj;
     private object[] Value = new object[] { new DateTime(2025, 01, 01), new DateTime(2025, 10, 01) };
+    private string _selectedValue;
 
     private MqttTopic _topic { get; set; }
     private IMqttClient _mqttClient;
@@ -107,7 +120,6 @@
         }
         catch (Exception)
         {
-
             throw;
         }
 
@@ -144,16 +156,14 @@
             Console.WriteLine($"MQTT stop error: {ex.Message}");
         }
     }
-
     private async Task GetHistorikData()
     {
         try
         {
-
-            telemetriData = await _service.GetDataAsync();
-
+            telemetriData = _service.GetData();
+            
             var now = DateTime.Now;
-            var tweentyFourHours = now.AddHours(-24);
+            var tweentyFourHours = now.AddHours(-6);
 
             // Temperatur
             var tempLast6h = telemetriData
@@ -180,7 +190,6 @@
         }
 
     }
-
     private async Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
     {
         try
