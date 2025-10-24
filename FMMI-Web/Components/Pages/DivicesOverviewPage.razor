@@ -47,7 +47,7 @@
             </div>
         @foreach (var item in _devices)
             {
-                <FMMI_Web.Components.Device.DeviceComponent Device="item" CreateEvent="() => LoadDevicesByMachineId(_pickedMachineId)"/>
+                <FMMI_Web.Components.Device.DeviceComponent Device="item"  CreateEvent="() => LoadDevicesByMachineId(_pickedMachineId)"/>
             }
     </div>
     }

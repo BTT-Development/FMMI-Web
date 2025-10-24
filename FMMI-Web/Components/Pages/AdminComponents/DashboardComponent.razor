@@ -66,7 +66,6 @@
 @code
 {
     private bool _isRealTimeMode = true;
-    [Parameter]
     public bool IsRealTimeMode
     {
         get => _isRealTimeMode;
@@ -77,6 +76,11 @@
                 _isRealTimeMode = value;
             }
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        OnRealtimeModeChanged(true);
     }
 
     public List<Data> telemetriData = new List<Data>();
