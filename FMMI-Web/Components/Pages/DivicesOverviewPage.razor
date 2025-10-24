@@ -136,7 +136,7 @@
         }
         StateHasChanged();
     }
-    private async Task OpenCreateDeviceModal()
+    private void OpenCreateDeviceModal()
     {
         var parameters = new ModalParameters();
         parameters.Add(nameof(CreateDeviceComponent.LocationId), _pickedLocationId);
@@ -150,23 +150,7 @@
             HideHeader = true,
         };
 
-        var modal = Modal!.Show<CreateDeviceComponent>(parameters, options);
+        Modal!.Show<CreateDeviceComponent>(parameters, options);
 
-        var result = await modal.Result;
-
-        if (result.Cancelled)
-        {
-            Console.WriteLine("Modal was cancelled");
-        }
-        else if (result.Confirmed)
-        {
-            Result<List<ShowDeviceDTO>> resultDeviceList = await _deviceService.GetDevicesByMachineId(_pickedMachineId);
-            if (resultDeviceList.IsSucces)
-            {
-                _devices.Clear();
-                _devices = resultDeviceList.Data;
-                StateHasChanged();
-            }
-        }
     }
 }
