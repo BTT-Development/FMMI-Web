@@ -15,18 +15,20 @@
 @inject IAlarmLogService _alarmLogService
 @inject IDeviceService _deviceService
 @inject ITelemetriService _telemetriService
+@attribute [Authorize]
 
 
 <div class="d-flex justify-content-between">
     <p class="fw-bold fs-5">
         @Device.Name
     </p>
-    <div class="d-flex justify-content-center">
-
-        <button class="btn btn-secondary me-2" name="rediger-enhed" @onclick="() => OpenEditModal()">Rediger enhed</button>
-        <button class="btn btn-danger me-2" name="slet-enhed" @onclick="OpenConfirmDeleteModal">Slet enhed</button>
-        <button class="btn btn-success" name="opret-alarm" @onclick="OpenAlarmLogModal">Alarm log</button>
-    </div>
+    <AuthorizeView Roles="Sikkerhedspersonale">
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-secondary me-2" name="rediger-enhed" @onclick="() => OpenEditModal()">Rediger enhed</button>
+            <button class="btn btn-danger me-2" name="slet-enhed" @onclick="OpenConfirmDeleteModal">Slet enhed</button>
+            <button class="btn btn-success" name="opret-alarm" @onclick="OpenAlarmLogModal">Alarm log</button>
+        </div>
+    </AuthorizeView>
 </div>
 
 <DashboardComponent />
