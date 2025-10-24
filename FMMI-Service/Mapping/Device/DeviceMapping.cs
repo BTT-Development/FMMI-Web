@@ -25,4 +25,12 @@ public static class DeviceMapping
             MachineId = deviceDTO.MachineId
         };
     }
+
+    public static FMMI_Domain.Entities.Device MapEditDTOtoDevice(this EditDeviceDTO deviceDTO)
+    {
+        return new FMMI_Domain.Entities.Device
+        {
+            Name = deviceDTO.Name,
+        };
+    }
 }

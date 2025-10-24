@@ -14,7 +14,7 @@
 <div class="d-flex justify-content-center my-3">
     <div class="intervalStyle">
         <ChooseIntervalComponent OnModeChanged="@OnRealtimeModeChanged" />
-        @if (IsRealTimeMode)
+        @* @if (IsRealTimeMode)
         {
             <div class="form-group">
                 <label for="selection" class="block text-sm font-medium text-gray-700 mb-1">Vælg interval:</label>
@@ -28,7 +28,7 @@
                     <option>30 sekunder</option>
                 </select>
             </div>
-        }
+        } *@
     </div>
 </div>
 <div class="content">

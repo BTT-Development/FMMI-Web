@@ -1,0 +1,52 @@
+﻿@using FMMI_Service.DTO.Device
+@using FMMI_Service.Services.DeviceServices
+@inject IDeviceService _deviceService
+<h3>EditDeviceComponent</h3>
+
+<EditForm Model="@EditDeviceDTO" OnValidSubmit="@EditDevice">
+    <div class="form-group">
+        <label>Navn</label>
+        <input type="text" class="form-control" @bind="@EditDeviceDTO.Name">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int DeviceId { get; set; }
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = null!;
+
+    public ShowDeviceDTO DeviceDTO = new();
+    public EditDeviceDTO EditDeviceDTO = new();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        Result<ShowDeviceDTO> result = await _deviceService.GetDeviceById(DeviceId);
+        if (result.IsSucces)
+        {
+            DeviceDTO = result.Data;
+            EditDeviceDTO = new EditDeviceDTO
+            {
+                Id = DeviceDTO.Id,
+                Name = DeviceDTO.Name
+            };
+        }
+    }
+
+    private async Task EditDevice()
+    {
+        var result = await _deviceService.UpdateDevice(EditDeviceDTO);
+        if (result.IsSucces)
+            await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+        else
+            _toastService.ShowError("Der skete en fejl ved opdatering af enhed");
+    }
+
+    async Task Close()
+        => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+
+    async Task Cancel()
+        => await BlazoredModal.CancelAsync();
+}

@@ -46,7 +46,7 @@ internal class DeviceService : BaseService<Device>, IDeviceService
 
     public async  Task<Result<ShowDeviceDTO>> GetDeviceById(int id)
     {
-        ShowDeviceDTO dto = _context.Devices.Where(x => x.Id == id).MapDeviceToDTO().FirstOrDefault();
+        ShowDeviceDTO dto = _context.Devices.AsNoTracking().Where(x => x.Id == id).MapDeviceToDTO().FirstOrDefault();
         if (dto is not null)
         {
             return Result<ShowDeviceDTO>.Succes(dto, "Succes");
@@ -79,15 +79,15 @@ internal class DeviceService : BaseService<Device>, IDeviceService
         return Result.Result.Fail("Device blev ikke oprettet.");
     }
 
-    public Result<Device> UpdateDevice(ShowDeviceDTO deviceDTO)
+    public async Task<Result<Device>> UpdateDevice(EditDeviceDTO deviceDTO)
     {
         Device? device = _context.Devices.FirstOrDefault(x => x.Id == deviceDTO.Id);
         if (device == null)
         {
             return Result<Device>.Fail("Device ikke fundet.");
         }
-        device = deviceDTO.MapDTOtoDevice();
-        _context.Devices.Update(device);
+        device.Name = deviceDTO.Name;
+        await UpdateAsync(device);
         return Result<Device>.Succes(device, "Device opdateret.");
     }
 
