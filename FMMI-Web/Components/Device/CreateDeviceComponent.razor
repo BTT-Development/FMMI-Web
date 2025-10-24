@@ -12,6 +12,12 @@
     [Parameter]
     public int LocationId { get; set; }
 
+    [Parameter]
+    public EventCallback CreateEvent { get; set; }
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = null!;
+
     private string _name;
 
     private CreateDeviceDTO _createDevice = new();
@@ -26,6 +32,8 @@
             if (result.IsSucces)
             {
                 _toastService.ShowSuccess(result.Message);
+                await CreateEvent.InvokeAsync();
+                await BlazoredModal.CloseAsync(ModalResult.Ok(true));
             }
             else
             {

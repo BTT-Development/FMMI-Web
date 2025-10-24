@@ -4,8 +4,11 @@
     <div class="">@alarmLogDTO.DeviceName</div>
 
     <div class="">@alarmLogDTO.Description</div>
-    <div class="">@alarmLogDTO.Location</div>
-    <div class="">@alarmLogDTO.Machine</div>
+    @if (ShowLocationAndMachine)
+    {
+        <div class="">@alarmLogDTO.Location</div>
+        <div class="">@alarmLogDTO.Machine</div>
+    }
     <div class="">@alarmLogDTO.Date</div>
 </div>
 
@@ -13,7 +16,9 @@
     [Parameter]
     public ShowAlarmLogDTO alarmLogDTO { get; set; }
 
-   
+    [Parameter]
+    public bool ShowLocationAndMachine { get; set; } = true;
+
     protected override void OnInitialized()
     {
         

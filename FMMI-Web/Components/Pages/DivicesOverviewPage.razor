@@ -47,7 +47,7 @@
             </div>
         @foreach (var item in _devices)
             {
-                <FMMI_Web.Components.Device.DeviceComponent Device="item"/>
+                <FMMI_Web.Components.Device.DeviceComponent Device="item" CreateEvent="() => LoadDevicesByMachineId(_pickedMachineId)"/>
             }
     </div>
     }
@@ -112,11 +112,7 @@
     private async Task ClickMachineName(int id, int index)
     {
         _devices.Clear();
-        Result<List<ShowDeviceDTO>> result = await _deviceService.GetDevicesByMachineId(id);
-        if (result.IsSucces)
-        {
-            _devices = result.Data;
-        }
+        await LoadDevicesByMachineId(id);
         _pickedMachineId = id;
         _pickedMachine = new bool[_machines.Count];
         _pickedMachine[index] = true;
@@ -124,11 +120,22 @@
         _showDevices = true;
         StateHasChanged();
     }
+    private async Task LoadDevicesByMachineId(int id)
+    {
+        _devices.Clear();
+        Result<List<ShowDeviceDTO>> result = await _deviceService.GetDevicesByMachineId(id);
+        if (result.IsSucces)
+        {
+            _devices = result.Data;
+        }
+        StateHasChanged();
+    }
     private async Task OpenCreateDeviceModal()
     {
         var parameters = new ModalParameters();
         parameters.Add(nameof(CreateDeviceComponent.LocationId), _pickedLocationId);
         parameters.Add(nameof(CreateDeviceComponent.MachineId), _pickedMachineId);
+        parameters.Add(nameof(CreateDeviceComponent.CreateEvent), EventCallback.Factory.Create(this, () => LoadDevicesByMachineId(_pickedMachineId)));
 
         var options = new ModalOptions()
         {

@@ -86,8 +86,15 @@
     public List<ChartData> FugtighedData = new();
     private List<ShowAlarmLogDTO> _alarmLogDTOs = new List<ShowAlarmLogDTO>();
     private List<Data> _telemetriDTOs = [];
-    [CascadingParameter] public IModalService Modal { get; set; } = default!;
+    
+    [CascadingParameter] 
+    public IModalService Modal { get; set; } = default!;
+    
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = null!;
 
+    [Parameter]
+    public EventCallback CreateEvent { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -223,6 +230,8 @@
         if (result.IsSucces)
         {
             _toastService.ShowSuccess(result.Message);
+            await CreateEvent.InvokeAsync();
+            await BlazoredModal.CloseAsync(ModalResult.Ok(true));
         }
         else
         {
