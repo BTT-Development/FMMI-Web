@@ -2,9 +2,21 @@
 @using FMMI_Service.Services.DeviceServices
 @inject IDeviceService _deviceService;
 
-<InputText @bind-Value="_name" />
-<button type="submit" @onclick="CreateDevice">Opret </button>
-<button type="submit">Anullere </button>
+<div>
+    <div class="d-flex justify-content-center">
+        <p class="fw-bold">Opret enhed</p>
+    </div>
+
+    <div class="mt-2">
+        <label class="form-label">Enhed navn</label>
+        <InputText class="form-control" @bind-Value="_name" />
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <button class="btn-custom me-2" type="submit" @onclick="CreateDevice">Opret </button>
+        <button class="btn-custom" @onclick="Cancel">Anullere </button>
+    </div>
+</div>
 @code {
     [Parameter]
     public int MachineId { get; set; }
@@ -41,7 +53,11 @@
             }
             
         }
-
-
+        else
+        {
+            _toastService.ShowError("Intast navn");
+        }
     }
+    async Task Cancel()
+        => await BlazoredModal.CancelAsync(); 
 }

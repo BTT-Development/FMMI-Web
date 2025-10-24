@@ -16,11 +16,13 @@
 
 <div class="d-flex justify-content-center my-3">
     <div class="intervalStyle">
-        @Device.Name
+        <p>
+            @Device.Name
+        </p>
         <ChooseIntervalComponent OnModeChanged="@OnRealtimeModeChanged" />
         
             <button class="btn btn-secondary" name="rediger-enhed">Rediger enhed</button>
-        <button class="btn btn-danger" name="slet-enhed" @onclick="OpenConfirmDeleteModal">Slet enhed</button>
+             <button class="btn btn-danger" name="slet-enhed" @onclick="OpenConfirmDeleteModal">Slet enhed</button>
             <button class="btn btn-success" name="opret-alarm">Opret alarm</button>
             <button class="btn btn-success" name="opret-alarm" @onclick="OpenAlarmLogModal">Alarm log</button>
     </div>
@@ -100,11 +102,6 @@
     {
     }
 
-    protected async override Task OnParametersSetAsync()
-    {
-        await GetDeviceById();
-        StateHasChanged();
-    }
 
     private async Task MqttConnect()
     {
@@ -238,21 +235,7 @@
             _toastService.ShowError(result.Message);
         }
     }
-
-    private async Task GetDeviceById()
-    {
-        // var deviceDTO = await _deviceService.GetDeviceById(Device.Id);
-        // if (deviceDTO is not null)
-        // {
-        //     _deviceDTO = deviceDTO.Data;
-        // }
-
-        await GetDataByDeviceId();
-        await GetLogsData();
-
-    }
-
-    
+   
     private async Task StopRealtimeAsync()
     {
         try

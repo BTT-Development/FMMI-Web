@@ -7,14 +7,15 @@
 
 <nav class="navbar navbar-expand-lg py-0 navbarColor">
     <div class="container-fluid">
-        <a href="/"><img class="navbar-brand" src="/logotelemetri1.png" height="50" width="50" />FMMI</a>
+       
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <a href="/"><img class="navbar-brand" src="/logotelemetri1.png" height="50" width="50" /></a>
+
+    
         <NavLink class="ms-2" href="/DivicesOverviewPage">
             <div class="text-white">Devices</div>
         </NavLink>
+        
         @if (_alarmCount > 0)
         {  
             <NavLink class="ms-2" href="/AlarmOverview">
