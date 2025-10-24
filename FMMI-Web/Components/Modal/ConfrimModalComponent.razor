@@ -1,0 +1,37 @@
+﻿﻿﻿<div class="bg-color-white">
+    <div class="text-center">
+        <h4>@Title</h4>
+        <p> @Text</p>
+        <button class="btn btn-success me-2" @onclick="() => UseCallback()">Ja</button>
+        <button class="btn btn-danger" @onclick="Cancel">Nej</button>
+    </div>
+</div>
+
+@code {
+    // Use this component for confirm message
+    [Parameter]
+    public EventCallback CreateEvent { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Text { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = null!;
+
+    async Task UseCallback()
+    {
+        await CreateEvent.InvokeAsync();
+        await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+    }
+
+    async Task Close()
+        => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+
+    async Task Cancel()
+        => await BlazoredModal.CancelAsync();
+}
+
+

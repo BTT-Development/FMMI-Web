@@ -1,0 +1,23 @@
+﻿@inject IAlarmLogService _alarmLogService
+
+@foreach (var item in _alarmLogs)
+{
+    <FMMI_Web.Components.Alarm.AlarmComponent alarmLogDTO="item" ShowLocationAndMachine="false" />
+}
+
+@code {
+    [Parameter]
+    public int DeviceId { get; set; }
+
+    private List<ShowAlarmLogDTO> _alarmLogs = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Result<List<ShowAlarmLogDTO>> result = await _alarmLogService.GetAllAlarmLogByDeviceIdAsync(DeviceId);
+        if (result.IsSucces)
+        {
+            _alarmLogs = result.Data;
+        }
+        StateHasChanged();
+    }
+}

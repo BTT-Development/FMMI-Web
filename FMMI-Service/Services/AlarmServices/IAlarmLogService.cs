@@ -8,4 +8,6 @@ public interface IAlarmLogService
 {
     Task<Result<List<ShowAlarmLogDTO>>> GetAllActiveAlarmlogs();
     Task<Result<int>> GetCountOnActiceAlarmlogs();
+
+    Task<Result<List<ShowAlarmLogDTO>>> GetAllAlarmLogByDeviceIdAsync(int deviceId);
 }

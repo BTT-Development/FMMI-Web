@@ -39,5 +39,18 @@ internal class AlarmLogService : BaseService<AlarmLogs>, IAlarmLogService
         return Result<int>.Fail("Ingen alarmer.");
         
     }
+    public async Task<Result<List<ShowAlarmLogDTO>>> GetAllAlarmLogByDeviceIdAsync(int deviceId)
+    {
+        List<ShowAlarmLogDTO> alarmlogs = new();
+        alarmlogs = await _context.AlarmLogs
+            .Include(x => x.Alarmer)
+            .ThenInclude(x => x.Device)
+            .ThenInclude(x => x.Machine)
+            .ThenInclude(x => x.Locations)
+            .Where(x => x.Alarmer.DeviceId == deviceId)
+            .MapAlarmLogToDTO()
+            .ToListAsync();
+        return Result<List<ShowAlarmLogDTO>>.Succes(alarmlogs, "data fundet.");
+    }
 
 }

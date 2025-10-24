@@ -5,6 +5,7 @@
 @using FMMI_Service.Result
 @using FMMI_Service.Services.DeviceServices
 @using FMMI_Service.Services.MachineServices
+@using FMMI_Web.Components.Device
 @inject ILocationService _locationService
 @inject IMachineService _machineService
 @inject IDeviceService _deviceService
@@ -24,7 +25,7 @@
     @if (_showMachines)
      {
         <div class="col-2 align-items-start border border-dark-subtle border-top-0 border-bottom-0 border-start-0 min-vh-100 bg-body-secondary border-1">
-            <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center ">
                 <p>Maskiner</p>
             </div>
             @foreach (var item in _machines)
@@ -39,12 +40,14 @@
     {
         
     <div class="col-8 justify-content-center min-vh-100 bg-white">
-            <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-between ps-2 pe-2">
+                <div></div>
                 <p>Maskiner</p>
+                <i class="bi bi-plus-square-fill" @onclick="OpenCreateDeviceModal"></i>
             </div>
         @foreach (var item in _devices)
             {
-                <FMMI_Web.Components.Device.DeviceComponent Device="item"/>
+                <FMMI_Web.Components.Device.DeviceComponent Device="item" CreateEvent="() => LoadDevicesByMachineId(_pickedMachineId)"/>
             }
     </div>
     }
@@ -60,6 +63,9 @@
 
     private List<ShowDeviceDTO> _devices = new();
 
+    [CascadingParameter] 
+    public IModalService Modal { get; set; } = default!;
+
     bool _showMachines = false;
 
     bool _showDevices = false;
@@ -67,6 +73,10 @@
     private bool[] _pickedLocation;
 
     private bool[] _pickedMachine;
+
+    private int _pickedLocationId;
+
+    private int _pickedMachineId;
 
     protected async override void OnAfterRender(bool first)
     {
@@ -91,7 +101,7 @@
         {
             _machines = result.Data;
         }
-
+        _pickedLocationId = id;
         _pickedLocation = new bool[_locations.Count];
         _pickedLocation[index] = true;
         _pickedMachine = new bool[_machines.Count];
@@ -102,17 +112,58 @@
     private async Task ClickMachineName(int id, int index)
     {
         _devices.Clear();
+        await LoadDevicesByMachineId(id);
+        _pickedMachineId = id;
+        _pickedMachine = new bool[_machines.Count];
+        _pickedMachine[index] = true;
+
+        _showDevices = true;
+        StateHasChanged();
+    }
+    private async Task LoadDevicesByMachineId(int id)
+    {
+        _devices.Clear();
         Result<List<ShowDeviceDTO>> result = await _deviceService.GetDevicesByMachineId(id);
         if (result.IsSucces)
         {
             _devices = result.Data;
         }
-        
-        _pickedMachine = new bool[_machines.Count];
-        _pickedMachine[index] = true;
-      
-        _showDevices = true;
         StateHasChanged();
     }
+    private async Task OpenCreateDeviceModal()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(CreateDeviceComponent.LocationId), _pickedLocationId);
+        parameters.Add(nameof(CreateDeviceComponent.MachineId), _pickedMachineId);
+        parameters.Add(nameof(CreateDeviceComponent.CreateEvent), EventCallback.Factory.Create(this, () => LoadDevicesByMachineId(_pickedMachineId)));
+
+        var options = new ModalOptions()
+        {
+            Size = ModalSize.Medium,
+            Position = ModalPosition.Middle,
+            HideHeader = true,
+        };
+
+        var modal = Modal!.Show<CreateDeviceComponent>(parameters, options);
+
+        var result = await modal.Result;
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled");
+        }
+        else if (result.Confirmed)
+        {
+            Result<List<ShowDeviceDTO>> resultDeviceList = await _deviceService.GetDevicesByMachineId(_pickedMachineId);
+            if (resultDeviceList.IsSucces)
+            {
+                _devices.Clear();
+                _devices = resultDeviceList.Data;
+                StateHasChanged();
+            }
+        }
+    }
+  
+    
 
 }

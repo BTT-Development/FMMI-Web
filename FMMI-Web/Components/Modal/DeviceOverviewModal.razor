@@ -12,15 +12,17 @@
 @inject IAlarmLogService _alarmLogService
 @inject IDeviceService _deviceService
 @inject ITelemetriService _telemetriService
+
+
 <div class="d-flex justify-content-center my-3">
     <div class="intervalStyle">
+        @Device.Name
         <ChooseIntervalComponent OnModeChanged="@OnRealtimeModeChanged" />
         
-            <button class="btn btn-primary" name="opret-enhed">Opret enhed</button>
             <button class="btn btn-secondary" name="rediger-enhed">Rediger enhed</button>
-            <button class="btn btn-danger" name="slet-enhed">Slet enhed</button>
+        <button class="btn btn-danger" name="slet-enhed" @onclick="OpenConfirmDeleteModal">Slet enhed</button>
             <button class="btn btn-success" name="opret-alarm">Opret alarm</button>
-        
+            <button class="btn btn-success" name="opret-alarm" @onclick="OpenAlarmLogModal">Alarm log</button>
     </div>
 </div>
 
@@ -59,7 +61,6 @@
 
 @code 
 {
-
     private bool _isRealTimeMode = true;
     [Parameter]
     public bool IsRealTimeMode
@@ -74,7 +75,8 @@
         }
     }
     [Parameter]
-    public int DeviceId { get; set; }
+    public ShowDeviceDTO Device { get; set; }
+
     SfChart tempChartObj;
     SfChart humidityChartObj;
     private MqttTopic _topic { get; set; }
@@ -84,7 +86,15 @@
     public List<ChartData> FugtighedData = new();
     private List<ShowAlarmLogDTO> _alarmLogDTOs = new List<ShowAlarmLogDTO>();
     private List<Data> _telemetriDTOs = [];
-    private ShowDeviceDTO _deviceDTO = new();
+    
+    [CascadingParameter] 
+    public IModalService Modal { get; set; } = default!;
+    
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback CreateEvent { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -150,7 +160,7 @@
         var now = DateTime.Now;
         var tweentyFourHours = now.AddHours(-6);
 
-        var result = await _telemetriService.GetDataByDeviceIdAsync(DeviceId);
+        var result = await _telemetriService.GetDataByDeviceIdAsync(Device.Id);
         // Temperatur
         var tempLast6h = result.Data
             .Where(td => td.DataType.TypeName == "Temperature" && td.Dates >= tweentyFourHours)
@@ -171,6 +181,31 @@
         FugtighedData = humidityLast6h;
     }
 
+    private async Task OpenAlarmLogModal()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(AlarmLogsOverview.DeviceId), Device.Id);
+
+        var options = new ModalOptions()
+         {
+             Size = ModalSize.Large,
+             Position = ModalPosition.Middle,
+             HideHeader = true,
+         };
+
+        var modal = Modal!.Show<AlarmLogsOverview>(parameters, options);
+
+        var result = await modal.Result;
+
+        if (result.Cancelled)
+        {
+            Console.WriteLine("Modal was cancelled");
+        }
+        else if (result.Confirmed)
+        {
+            Console.WriteLine("Modal was closed");
+        }
+    }
     private async Task GetLogsData()
     {
         var logs = await (_alarmLogService.GetAllActiveAlarmlogs());
@@ -180,24 +215,44 @@
         }
 
     }
+    private void OpenConfirmDeleteModal()
+    {
+        ModalParameters parameter = new();
+        parameter.Add(nameof(ConfrimModalComponent.CreateEvent), EventCallback.Factory.Create(this, () => DeleteDevice()));
+
+        parameter.Add(nameof(ConfrimModalComponent.Text), "Er du sikker på du vil slette denne enhed?");
+        
+        Modal.Show<ConfrimModalComponent>(parameter);
+    }
+    private async Task DeleteDevice()
+    {
+        Result result = await _deviceService.DeleteDevice(Device.Id);
+        if (result.IsSucces)
+        {
+            _toastService.ShowSuccess(result.Message);
+            await CreateEvent.InvokeAsync();
+            await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+        }
+        else
+        {
+            _toastService.ShowError(result.Message);
+        }
+    }
 
     private async Task GetDeviceById()
     {
-        var deviceDTO = await _deviceService.GetDeviceById(DeviceId);
-        if (deviceDTO is not null)
-        {
-            _deviceDTO = deviceDTO.Data;
-        }
+        // var deviceDTO = await _deviceService.GetDeviceById(Device.Id);
+        // if (deviceDTO is not null)
+        // {
+        //     _deviceDTO = deviceDTO.Data;
+        // }
 
         await GetDataByDeviceId();
         await GetLogsData();
 
     }
 
-    private void CreateDevice()
-    {
-        _deviceService.CreateDevice(_deviceDTO);
-    }
+    
     private async Task StopRealtimeAsync()
     {
         try
